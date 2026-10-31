@@ -1,0 +1,6 @@
+{
+  "name": "BodaCare Uganda",
+  "description": "Digital platform for boda-boda operators, passengers, stage leaders, and mechanics in Luweero District and across Uganda.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
