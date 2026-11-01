@@ -20,7 +20,7 @@ import {
   History,
 } from 'lucide-react';
 import { PaymentSubmission, PaymentSubmissionStatus } from '../../types';
-import { storage } from '../../lib/storage';
+import { storage, safeCopyToClipboard } from '../../lib/storage';
 import { formatUgx, Language } from '../../lib/i18n';
 
 interface AdminPaymentVerificationProps {
@@ -54,7 +54,7 @@ export const AdminPaymentVerification: React.FC<AdminPaymentVerificationProps> =
     .reduce((sum, s) => sum + s.amountUgx, 0);
 
   const handleCopyTx = (txId: string) => {
-    navigator.clipboard.writeText(txId);
+    safeCopyToClipboard(txId);
     setCopiedTxId(txId);
     setTimeout(() => setCopiedTxId(null), 2000);
   };

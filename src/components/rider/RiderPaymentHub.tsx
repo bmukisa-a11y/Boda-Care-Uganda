@@ -20,6 +20,7 @@ import {
   storage,
   OFFICIAL_PAYMENT_DETAILS,
   INITIAL_PLANS,
+  safeCopyToClipboard,
 } from '../../lib/storage';
 import { formatUgx, Language } from '../../lib/i18n';
 
@@ -54,7 +55,7 @@ export const RiderPaymentHub: React.FC<RiderPaymentHubProps> = ({
       : 'none');
 
   const handleCopy = (text: string, type: string) => {
-    navigator.clipboard.writeText(text);
+    safeCopyToClipboard(text);
     setCopiedType(type);
     setTimeout(() => setCopiedType(null), 2500);
   };

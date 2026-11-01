@@ -18,7 +18,7 @@ import {
   Check,
 } from 'lucide-react';
 import { UserRole, User as UserType } from '../../types';
-import { storage, OFFICIAL_PAYMENT_DETAILS } from '../../lib/storage';
+import { storage, OFFICIAL_PAYMENT_DETAILS, safeCopyToClipboard } from '../../lib/storage';
 import { translations, Language } from '../../lib/i18n';
 
 interface AuthModalProps {
@@ -61,7 +61,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
 
   const handleCopyPaymentNumber = (num: string, network: string) => {
-    navigator.clipboard.writeText(num);
+    safeCopyToClipboard(num);
     setCopiedNumber(network);
     setTimeout(() => setCopiedNumber(null), 2500);
   };

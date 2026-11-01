@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B192C" />
     <title>BodaCare Uganda</title>
     <meta name="description" content="Digital platform for boda-boda operators, passengers, stage leaders, and mechanics in Luweero District and across Uganda." />
     <meta property="og:title" content="BodaCare Uganda" />
@@ -14,7 +15,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-400 selection:text-slate-900">
-    <div id="root"></div>
+    <div id="root">
+      <div style="min-height: 100vh; background-color: #0B192C; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; text-align: center; box-sizing: border-box;">
+        <div style="width: 64px; height: 64px; border-radius: 18px; background-color: #FBBF24; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; box-shadow: 0 10px 25px rgba(251, 191, 36, 0.35);">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0B192C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18.5" cy="17.5" r="3.5"/>
+            <circle cx="5.5" cy="17.5" r="3.5"/>
+            <circle cx="15" cy="5" r="1"/>
+            <path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
+          </svg>
+        </div>
+        <h1 style="font-size: 24px; font-weight: 800; margin: 0 0 6px 0; color: #ffffff; letter-spacing: -0.5px;">BodaCare Uganda</h1>
+        <p style="font-size: 13px; color: #94A3B8; margin: 0 0 24px 0; max-width: 300px; line-height: 1.4;">Connecting Riders, Passengers & Stage Leaders in Luweero District</p>
+        <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid rgba(251, 191, 36, 0.2); border-radius: 50%; border-top-color: #FBBF24; animation: bodaspin 0.8s linear infinite;"></div>
+        <p style="font-size: 11px; color: #64748B; margin-top: 18px;">Loading digital mobility portal...</p>
+        <style>
+          @keyframes bodaspin { to { transform: rotate(360deg); } }
+        </style>
+      </div>
+    </div>
+    <noscript>
+      <div style="padding: 24px; text-align: center; font-family: sans-serif; background: #FFFBEB; color: #92400E; border-bottom: 2px solid #FCD34D;">
+        <strong>JavaScript Required:</strong> Please enable JavaScript on your browser or Android Chrome to use BodaCare Uganda.
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -63,6 +63,8 @@ export const BusinessDirectory: React.FC<BusinessDirectoryProps> = ({ lang }) =>
     return matchesCat && matchesSub && matchesSearch;
   });
 
+  const [requestSuccessNotice, setRequestSuccessNotice] = useState<string | null>(null);
+
   const handleSendServiceRequest = (e: React.FormEvent) => {
     e.preventDefault();
     setRequestSent(true);
@@ -71,8 +73,9 @@ export const BusinessDirectory: React.FC<BusinessDirectoryProps> = ({ lang }) =>
       setActiveRequestBiz(null);
       setRequestServiceName('');
       setRequestNotes('');
-      alert('Service request sent directly to garage! The mechanic will call you back.');
-    }, 1200);
+      setRequestSuccessNotice('Service request sent directly to garage! The mechanic will call you back.');
+      setTimeout(() => setRequestSuccessNotice(null), 4000);
+    }, 800);
   };
 
   const handleRegisterBusiness = (e: React.FormEvent) => {
@@ -127,6 +130,12 @@ export const BusinessDirectory: React.FC<BusinessDirectoryProps> = ({ lang }) =>
           <span>Register Your Garage / Shop</span>
         </button>
       </div>
+
+      {requestSuccessNotice && (
+        <div className="bg-emerald-50 text-emerald-800 text-xs sm:text-sm font-semibold p-3 rounded-xl border border-emerald-200 text-center animate-fade-in shadow-sm">
+          {requestSuccessNotice}
+        </div>
+      )}
 
       {/* 2. Filter Bar & Search */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">

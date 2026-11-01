@@ -19,6 +19,7 @@ import {
   INITIAL_PLANS,
   OFFICIAL_PAYMENT_DETAILS,
   normalizeTransactionId,
+  safeCopyToClipboard,
 } from '../../lib/storage';
 import { formatUgx, Language } from '../../lib/i18n';
 
@@ -71,7 +72,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const currentPlan = INITIAL_PLANS.find((p) => p.id === selectedPlanId) || INITIAL_PLANS[1];
 
   const handleCopy = (text: string, type: string) => {
-    navigator.clipboard.writeText(text);
+    safeCopyToClipboard(text);
     setCopiedNetwork(type);
     setTimeout(() => setCopiedNetwork(null), 2500);
   };

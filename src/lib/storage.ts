@@ -30,8 +30,11 @@ import {
   PlatformInvitation,
 } from '../types';
 
-export const HERO_IMAGE = '/src/assets/images/bodacare_rider_hero_1793382094028.jpg';
-export const STAGE_IMAGE = '/src/assets/images/bodacare_community_stage_1793382094462.jpg';
+import heroImage from '../assets/images/bodacare_rider_hero_1793382094028.jpg';
+import stageImage from '../assets/images/bodacare_community_stage_1793382094462.jpg';
+
+export const HERO_IMAGE = heroImage;
+export const STAGE_IMAGE = stageImage;
 
 // Official BodaCare Uganda Mobile Money Payment Details
 export const OFFICIAL_PAYMENT_DETAILS = {
@@ -63,6 +66,46 @@ export const OFFICIAL_PAYMENT_DETAILS = {
 export function normalizeTransactionId(txId: string): string {
   if (!txId) return '';
   return txId.trim().replace(/\s+/g, '').toUpperCase();
+}
+
+/**
+ * Robust clipboard copy function supporting modern Clipboard API with fallback
+ * to document.execCommand for mobile Android Chrome and WebViews where
+ * navigator.clipboard might be restricted or unavailable.
+ */
+export function safeCopyToClipboard(text: string): boolean {
+  if (!text) return false;
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(text).catch(() => {
+        legacyClipboardCopy(text);
+      });
+      return true;
+    }
+  } catch {
+    // Continue to legacy fallback
+  }
+  return legacyClipboardCopy(text);
+}
+
+function legacyClipboardCopy(text: string): boolean {
+  if (typeof document === 'undefined') return false;
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.setAttribute('readonly', '');
+    textArea.style.contain = 'strict';
+    textArea.style.position = 'absolute';
+    textArea.style.left = '-9999px';
+    textArea.style.fontSize = '12pt';
+    document.body.appendChild(textArea);
+    textArea.select();
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return successful;
+  } catch {
+    return false;
+  }
 }
 
 // Initial Subscription Plans
@@ -961,22 +1004,67 @@ export const INITIAL_USERS: User[] = [
   },
 ];
 
-// Helper to access LocalStorage safely
+// Helper to access LocalStorage safely with resilient in-memory fallback for Android WebViews & private browsing
 class BodaStorage {
-  private get<T>(key: string, fallback: T): T {
+  private memoryFallback: Map<string, string> = new Map();
+  private storageAvailable: boolean | null = null;
+
+  private isStorageAvailable(): boolean {
+    if (this.storageAvailable !== null) {
+      return this.storageAvailable;
+    }
     try {
-      const data = localStorage.getItem(`bodacare_${key}`);
-      return data ? JSON.parse(data) : fallback;
+      if (typeof window === 'undefined' || !window.localStorage) {
+        this.storageAvailable = false;
+        return false;
+      }
+      const testKey = '__boda_probe__';
+      window.localStorage.setItem(testKey, '1');
+      window.localStorage.removeItem(testKey);
+      this.storageAvailable = true;
+      return true;
     } catch {
-      return fallback;
+      this.storageAvailable = false;
+      return false;
     }
   }
 
-  private set<T>(key: string, value: T): void {
+  private get<T>(key: string, fallback: T): T {
+    const fullKey = `bodacare_${key}`;
     try {
-      localStorage.setItem(`bodacare_${key}`, JSON.stringify(value));
-    } catch (e) {
-      console.error('Storage write error', e);
+      if (this.isStorageAvailable()) {
+        const item = window.localStorage.getItem(fullKey);
+        if (item !== null) {
+          return JSON.parse(item);
+        }
+      }
+    } catch {
+      // Degrade gracefully to in-memory map
+    }
+
+    const memItem = this.memoryFallback.get(fullKey);
+    if (memItem !== undefined) {
+      try {
+        return JSON.parse(memItem);
+      } catch {
+        return fallback;
+      }
+    }
+    return fallback;
+  }
+
+  private set<T>(key: string, value: T): void {
+    const fullKey = `bodacare_${key}`;
+    const serialized = JSON.stringify(value);
+    // Always store in memory cache first so the session never loses state
+    this.memoryFallback.set(fullKey, serialized);
+
+    try {
+      if (this.isStorageAvailable()) {
+        window.localStorage.setItem(fullKey, serialized);
+      }
+    } catch {
+      // Local storage unavailable or full; in-memory fallback active
     }
   }
 

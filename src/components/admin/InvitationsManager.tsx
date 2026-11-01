@@ -17,7 +17,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { PlatformInvitation } from '../../types';
-import { storage } from '../../lib/storage';
+import { storage, safeCopyToClipboard } from '../../lib/storage';
 import { translations, Language } from '../../lib/i18n';
 
 interface InvitationsManagerProps {
@@ -87,7 +87,7 @@ export const InvitationsManager: React.FC<InvitationsManagerProps> = ({ lang }) 
   };
 
   const handleCopy = (code: string, url: string) => {
-    navigator.clipboard.writeText(url);
+    safeCopyToClipboard(url);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2500);
   };

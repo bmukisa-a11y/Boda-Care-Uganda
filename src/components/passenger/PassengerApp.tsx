@@ -17,7 +17,7 @@ import {
   Send,
 } from 'lucide-react';
 import { Booking, RiderProfile } from '../../types';
-import { storage } from '../../lib/storage';
+import { storage, safeCopyToClipboard } from '../../lib/storage';
 import { formatUgx, translations, Language } from '../../lib/i18n';
 
 interface PassengerAppProps {
@@ -104,13 +104,20 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
     }, 700);
   };
 
+  const [shareNotice, setShareNotice] = useState<string | null>(null);
+
   const handleShareTrip = (b: Booking) => {
     const text = `I am on a verified BodaCare Uganda trip!\nDriver: ${b.riderName} (${b.riderPhone})\nBike: ${b.riderBike}\nRoute: ${b.pickupLocation} to ${b.destination}\nEmergency: +256 414 610 220`;
-    if (navigator.share) {
-      navigator.share({ title: 'My BodaCare Trip', text }).catch(() => {});
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({ title: 'My BodaCare Trip', text }).catch(() => {
+        safeCopyToClipboard(text);
+        setShareNotice('Trip safety details copied to clipboard!');
+        setTimeout(() => setShareNotice(null), 3000);
+      });
     } else {
-      navigator.clipboard.writeText(text);
-      alert('Trip safety details copied to clipboard! You can paste in WhatsApp or SMS.');
+      safeCopyToClipboard(text);
+      setShareNotice('Trip safety details copied to clipboard! You can paste in WhatsApp or SMS.');
+      setTimeout(() => setShareNotice(null), 3500);
     }
   };
 
@@ -181,6 +188,12 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
               </button>
             </div>
           </div>
+
+          {shareNotice && (
+            <div className="bg-emerald-50 text-emerald-800 text-xs font-semibold p-2.5 rounded-lg border border-emerald-200 text-center animate-fade-in">
+              {shareNotice}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Driver Identity Card */}

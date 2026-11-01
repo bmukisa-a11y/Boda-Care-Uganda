@@ -65,6 +65,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
   // Emergency Incident Resolution state
   const [selectedIncident, setSelectedIncident] = useState<EmergencyIncident | null>(null);
   const [resolutionNotes, setResolutionNotes] = useState('');
+  const [schemaNotice, setSchemaNotice] = useState<string | null>(null);
 
   // Overview metrics calculations
   const totalRiders = riders.length;
@@ -601,13 +602,20 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
             </div>
             <button
               onClick={() => {
-                alert('Schema file /src/db/schema.sql is ready to execute on any PostgreSQL or Supabase instance.');
+                setSchemaNotice('PostgreSQL schema /src/db/schema.sql verified & ready for production deployment.');
+                setTimeout(() => setSchemaNotice(null), 4000);
               }}
               className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 cursor-pointer"
             >
               Ready to Deploy
             </button>
           </div>
+
+          {schemaNotice && (
+            <div className="bg-indigo-50 text-indigo-900 border border-indigo-200 text-xs font-medium p-3 rounded-xl animate-fade-in">
+              {schemaNotice}
+            </div>
+          )}
 
           <pre className="p-4 bg-slate-950 text-emerald-400 font-mono text-[11px] rounded-xl overflow-x-auto max-h-96 leading-relaxed">
 {`-- Summary of BodaCare PostgreSQL Schema (/src/db/schema.sql)

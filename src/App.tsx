@@ -61,11 +61,14 @@ export default function App() {
     else if (role === 'super_admin') setActiveTab('admin');
   };
 
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
   // Sync offline queue
   const handleSyncQueue = () => {
     const synced = storage.flushSyncQueue();
     setPendingSyncCount(0);
-    alert(`Successfully synced ${synced} offline transaction record(s) with BodaCare server.`);
+    setToastMessage(`Successfully synced ${synced} offline transaction record(s) with BodaCare server.`);
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
   // Toggle offline simulation
@@ -94,6 +97,13 @@ export default function App() {
         onTabChange={setActiveTab}
         onOpenAuth={() => setShowAuth(true)}
       />
+
+      {/* Synchronisation Notification Toast */}
+      {toastMessage && (
+        <div className="bg-emerald-600 text-white text-xs sm:text-sm font-semibold py-2.5 px-4 text-center flex items-center justify-center gap-2 shadow-md animate-fade-in">
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       {/* Main Viewport Routing */}
       <main className="flex-1">
