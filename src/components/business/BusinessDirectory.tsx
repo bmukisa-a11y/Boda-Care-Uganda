@@ -184,7 +184,16 @@ export const BusinessDirectory: React.FC<BusinessDirectoryProps> = ({ lang }) =>
 
       {/* 3. Listings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredBusinesses.map((biz) => (
+        {filteredBusinesses.length === 0 ? (
+          <div className="col-span-full bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-2">
+            <Wrench className="w-9 h-9 text-slate-300 mx-auto" />
+            <h3 className="text-sm font-bold text-slate-800">No Spare Parts Shops or Garages Listed Yet</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              Register a garage or spare parts dealer above, or add maintenance centres via the Super Admin Central Registry.
+            </p>
+          </div>
+        ) : (
+        filteredBusinesses.map((biz) => (
           <div
             key={biz.id}
             className={`bg-white rounded-2xl border p-5 shadow-sm space-y-4 flex flex-col justify-between transition-all ${
@@ -279,7 +288,8 @@ export const BusinessDirectory: React.FC<BusinessDirectoryProps> = ({ lang }) =>
               </button>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
 
       {/* 4. Service Booking Modal */}

@@ -1,7 +1,24 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
 import App from './App.tsx';
 import './index.css';
+
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  registerSW({
+    immediate: true,
+    onRegisteredSW(_swUrl, registration) {
+      if (registration) {
+        setInterval(() => {
+          registration.update().catch(() => {});
+        }, 15 * 60 * 1000);
+      }
+    },
+    onRegisterError(error) {
+      console.warn('Service worker registration skipped/error:', error);
+    },
+  });
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode;

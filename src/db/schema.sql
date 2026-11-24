@@ -301,7 +301,282 @@ ALTER TABLE public.emergency_incidents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.platform_invitations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.founder_profiles ENABLE ROW LEVEL SECURITY;
 
--- Sample RLS Policy: Only Super Admins can modify founder_profiles
--- CREATE POLICY super_admin_only_founder ON public.founder_profiles
---     FOR ALL USING (auth.jwt() ->> 'role' = 'super_admin');
+-- 19. BODA & FREIGHT JOBS
+CREATE TABLE IF NOT EXISTS public.boda_jobs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    employer_id UUID REFERENCES public.users(id),
+    employer_name VARCHAR(150) NOT NULL,
+    employer_phone VARCHAR(30) NOT NULL,
+    employer_type VARCHAR(30) CHECK (employer_type IN ('corporate', 'individual', 'cooperative', 'farm')),
+    title VARCHAR(200) NOT NULL,
+    description TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL CHECK (category IN ('passenger_transport', 'parcel_delivery', 'agricultural_produce', 'bulk_cargo', 'contract_dispatch')),
+    pickup_location TEXT NOT NULL,
+    destination TEXT NOT NULL,
+    sub_county VARCHAR(100) NOT NULL,
+    pay_amount_ugx NUMERIC(12, 2) NOT NULL,
+    pay_type VARCHAR(20) DEFAULT 'fixed' CHECK (pay_type IN ('per_trip', 'daily', 'monthly', 'fixed')),
+    vehicle_requirement VARCHAR(30) DEFAULT 'any' CHECK (vehicle_requirement IN ('any', 'petrol_only', 'electric_preferred', 'electric_only')),
+    deadline TIMESTAMP WITH TIME ZONE,
+    status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'completed', 'cancelled')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 20. JOB APPLICATIONS
+CREATE TABLE IF NOT EXISTS public.job_applications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    job_id UUID REFERENCES public.boda_jobs(id) ON DELETE CASCADE,
+    rider_id UUID REFERENCES public.rider_profiles(id) ON DELETE CASCADE,
+    rider_name VARCHAR(150) NOT NULL,
+    rider_phone VARCHAR(30) NOT NULL,
+    motorcycle_reg VARCHAR(20) NOT NULL,
+    motorcycle_type VARCHAR(20) NOT NULL,
+    proposal_note TEXT,
+    status VARCHAR(20) DEFAULT 'submitted' CHECK (status IN ('submitted', 'under_review', 'accepted', 'rejected')),
+    applied_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 21. BATTERY SWAP STATIONS (Electric Boda Infrastructure)
+CREATE TABLE IF NOT EXISTS public.battery_swap_stations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(200) NOT NULL,
+    location_name TEXT NOT NULL,
+    sub_county VARCHAR(100) NOT NULL,
+    lat DOUBLE PRECISION NOT NULL,
+    lng DOUBLE PRECISION NOT NULL,
+    operator_name VARCHAR(150) NOT NULL,
+    operator_phone VARCHAR(30) NOT NULL,
+    batteries_available INT DEFAULT 0,
+    batteries_charging INT DEFAULT 0,
+    total_slots INT NOT NULL,
+    battery_model VARCHAR(100) NOT NULL,
+    price_per_swap_ugx NUMERIC(10, 2) NOT NULL,
+    operating_hours VARCHAR(100) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    is_verified BOOLEAN DEFAULT FALSE,
+    solar_assisted BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 22. STATION PROBLEM REPORTS
+CREATE TABLE IF NOT EXISTS public.station_problem_reports (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    station_id UUID REFERENCES public.battery_swap_stations(id) ON DELETE CASCADE,
+    station_name VARCHAR(200) NOT NULL,
+    reporter_id UUID REFERENCES public.users(id),
+    reporter_phone VARCHAR(30) NOT NULL,
+    issue_type VARCHAR(50) NOT NULL CHECK (issue_type IN ('out_of_batteries', 'dock_offline', 'defective_battery', 'overcharging', 'closed_unexpectedly', 'power_blackout')),
+    description TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'acknowledged', 'resolved')),
+    reported_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    resolved_at TIMESTAMP WITH TIME ZONE,
+    resolution_note TEXT
+);
+
+-- 23. CERTIFIED MECHANICS & GARAGES
+CREATE TABLE IF NOT EXISTS public.mechanics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES public.users(id),
+    name VARCHAR(150) NOT NULL,
+    workshop_name VARCHAR(200) NOT NULL,
+    phone VARCHAR(30) NOT NULL,
+    sub_county VARCHAR(100) NOT NULL,
+    lat DOUBLE PRECISION,
+    lng DOUBLE PRECISION,
+    specialties TEXT[],
+    is_certified BOOLEAN DEFAULT TRUE,
+    rating NUMERIC(3, 2) DEFAULT 5.00,
+    repairs_count INT DEFAULT 0,
+    roadside_rescue_available BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 24. REPAIR REQUESTS & ROADSIDE BREAKDOWNS
+CREATE TABLE IF NOT EXISTS public.repair_requests (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    rider_id UUID REFERENCES public.rider_profiles(id),
+    rider_name VARCHAR(150) NOT NULL,
+    rider_phone VARCHAR(30) NOT NULL,
+    motorcycle_reg VARCHAR(20) NOT NULL,
+    mechanic_id UUID REFERENCES public.mechanics(id),
+    mechanic_name VARCHAR(150),
+    issue_type VARCHAR(50) NOT NULL CHECK (issue_type IN ('routine_service', 'breakdown', 'electrical', 'puncture', 'engine_issue')),
+    description TEXT NOT NULL,
+    urgency VARCHAR(20) DEFAULT 'medium' CHECK (urgency IN ('low', 'medium', 'high', 'urgent')),
+    location TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'in_progress', 'completed', 'cancelled')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 25. SERVICE RECORDS (Digital Maintenance Logbook)
+CREATE TABLE IF NOT EXISTS public.service_records (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    rider_id UUID REFERENCES public.rider_profiles(id) ON DELETE CASCADE,
+    motorcycle_reg VARCHAR(20) NOT NULL,
+    date DATE NOT NULL,
+    mileage_km INT NOT NULL,
+    service_type VARCHAR(200) NOT NULL,
+    parts_replaced TEXT[],
+    cost_ugx NUMERIC(12, 2) NOT NULL,
+    mechanic_name VARCHAR(150) NOT NULL,
+    next_due_km INT NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 26. RIDER DIGITAL WALLETS
+CREATE TABLE IF NOT EXISTS public.rider_wallets (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    rider_id UUID UNIQUE REFERENCES public.rider_profiles(id) ON DELETE CASCADE,
+    balance_ugx NUMERIC(12, 2) DEFAULT 0.00 CHECK (balance_ugx >= 0),
+    total_earned_ugx NUMERIC(12, 2) DEFAULT 0.00,
+    total_spent_ugx NUMERIC(12, 2) DEFAULT 0.00,
+    currency VARCHAR(10) DEFAULT 'UGX',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 27. WALLET TRANSACTIONS
+CREATE TABLE IF NOT EXISTS public.wallet_transactions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    wallet_id UUID REFERENCES public.rider_wallets(id) ON DELETE CASCADE,
+    rider_id UUID REFERENCES public.rider_profiles(id),
+    amount_ugx NUMERIC(12, 2) NOT NULL,
+    type VARCHAR(20) NOT NULL CHECK (type IN ('credit', 'debit')),
+    description TEXT NOT NULL,
+    category VARCHAR(30) NOT NULL CHECK (category IN ('fare', 'topup', 'subscription', 'maintenance', 'withdrawal', 'transfer')),
+    balance_after_ugx NUMERIC(12, 2) NOT NULL,
+    reference VARCHAR(100),
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 28. EXTERNAL SERVICES CONFIGURATION
+CREATE TABLE IF NOT EXISTS public.external_services_config (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    sms_provider VARCHAR(30) DEFAULT 'africastalking' CHECK (sms_provider IN ('africastalking', 'twilio')),
+    sms_api_key TEXT,
+    sms_sender_id VARCHAR(30) DEFAULT 'BODACARE',
+    whatsapp_api_endpoint TEXT,
+    whatsapp_access_token TEXT,
+    whatsapp_business_phone VARCHAR(30),
+    google_maps_api_key TEXT,
+    auto_dispatch_enabled BOOLEAN DEFAULT TRUE,
+    momo_webhook_secret TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 29. COMPLAINT REPORTS & CUSTOMER SUPPORT
+CREATE TABLE IF NOT EXISTS public.complaint_reports (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES public.users(id),
+    user_name VARCHAR(150) NOT NULL,
+    user_phone VARCHAR(30) NOT NULL,
+    user_role VARCHAR(50) NOT NULL,
+    category VARCHAR(50) NOT NULL CHECK (category IN ('fare_dispute', 'rider_conduct', 'lost_item', 'app_glitch', 'payment_issue', 'emergency_delay')),
+    subject VARCHAR(200) NOT NULL,
+    description TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_review', 'resolved')),
+    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    resolved_at TIMESTAMP WITH TIME ZONE,
+    resolution_notes TEXT
+);
+
+-- ADDITIONAL INDEXES
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON public.boda_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_stations_sub_county ON public.battery_swap_stations(sub_county);
+CREATE INDEX IF NOT EXISTS idx_wallet_rider ON public.rider_wallets(rider_id);
+CREATE INDEX IF NOT EXISTS idx_wallet_tx_rider ON public.wallet_transactions(rider_id);
+CREATE INDEX IF NOT EXISTS idx_repairs_status ON public.repair_requests(status);
+
+-- ============================================================================
+-- JOB ALERT AND SMS EMPLOYMENT NOTIFICATION SYSTEM SCHEMA EXTENSIONS
+-- ============================================================================
+
+-- 30. EXTEND RIDER PROFILES FOR PHONE TYPE (SMARTPHONE VS FEATURE-PHONE) & VILLAGE TARGETING
+ALTER TABLE public.rider_profiles
+  ADD COLUMN IF NOT EXISTS phone_type VARCHAR(20) DEFAULT 'smartphone' CHECK (phone_type IN ('smartphone', 'feature_phone')),
+  ADD COLUMN IF NOT EXISTS village VARCHAR(120),
+  ADD COLUMN IF NOT EXISTS sub_county VARCHAR(120);
+
+-- 31. EXTEND BODA JOBS WITH VERIFICATION, REQUIREMENTS & APPLICATION INSTRUCTIONS
+ALTER TABLE public.boda_jobs
+  ADD COLUMN IF NOT EXISTS employer_company VARCHAR(200),
+  ADD COLUMN IF NOT EXISTS village VARCHAR(120),
+  ADD COLUMN IF NOT EXISTS salary_display VARCHAR(120),
+  ADD COLUMN IF NOT EXISTS requirements TEXT,
+  ADD COLUMN IF NOT EXISTS application_instructions TEXT,
+  ADD COLUMN IF NOT EXISTS admin_approved BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS verified_by VARCHAR(150),
+  ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN IF NOT EXISTS notification_mode VARCHAR(20) DEFAULT 'none' CHECK (notification_mode IN ('sms_only', 'app_only', 'both', 'none')),
+  ADD COLUMN IF NOT EXISTS last_alert_sent_at TIMESTAMP WITH TIME ZONE;
+
+-- 32. RIDER JOB ALERT PREFERENCES & OPT-OUT MANAGEMENT (1:1 WITH RIDER PROFILE - NO DUPLICATES)
+CREATE TABLE IF NOT EXISTS public.rider_job_alert_preferences (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    rider_id UUID UNIQUE NOT NULL REFERENCES public.rider_profiles(id) ON DELETE CASCADE,
+    enabled BOOLEAN DEFAULT TRUE,
+    preferred_channel VARCHAR(20) DEFAULT 'auto' CHECK (preferred_channel IN ('auto', 'sms_only', 'app_only', 'both')),
+    opted_out_sms BOOLEAN DEFAULT FALSE,
+    opted_out_at TIMESTAMP WITH TIME ZONE,
+    opt_out_reason TEXT,
+    job_types TEXT[] DEFAULT ARRAY['produce_transport', 'parcel_delivery', 'scheduled_courier', 'corporate_boda', 'passenger_contract'],
+    preferred_sub_counties TEXT[] DEFAULT ARRAY['Kikyusa', 'Luweero Town Council', 'Wobulenzi', 'Kasana'],
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- 33. BULK SMS JOB ALERT CAMPAIGNS & EXPENDITURE AUDIT
+CREATE TABLE IF NOT EXISTS public.sms_job_campaigns (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    job_id UUID REFERENCES public.boda_jobs(id) ON DELETE SET NULL,
+    job_title VARCHAR(200) NOT NULL,
+    sent_by_admin_name VARCHAR(150) NOT NULL,
+    sent_by_admin_role VARCHAR(50) NOT NULL CHECK (sent_by_admin_role = 'super_admin'),
+    sent_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    dispatch_mode VARCHAR(20) NOT NULL CHECK (dispatch_mode IN ('sms_only', 'app_only', 'both', 'none')),
+    recipient_scope VARCHAR(30) NOT NULL CHECK (recipient_scope IN ('all', 'kikyusa', 'luweero', 'villages', 'stages', 'individual')),
+    scope_details TEXT,
+    message_text TEXT NOT NULL,
+    sms_segments INT DEFAULT 1,
+    total_targeted_riders INT DEFAULT 0,
+    sms_attempted_count INT DEFAULT 0,
+    sms_sent_count INT DEFAULT 0,
+    sms_delivered_count INT DEFAULT 0,
+    sms_failed_count INT DEFAULT 0,
+    invalid_phone_count INT DEFAULT 0,
+    opted_out_skipped_count INT DEFAULT 0,
+    app_notifications_sent_count INT DEFAULT 0,
+    estimated_cost_ugx NUMERIC(12, 2) DEFAULT 0,
+    actual_expenditure_ugx NUMERIC(12, 2) DEFAULT 0,
+    provider VARCHAR(50) DEFAULT 'africastalking',
+    sender_id VARCHAR(30) DEFAULT 'BODACARE',
+    gateway_configured BOOLEAN DEFAULT FALSE,
+    gateway_error TEXT
+);
+
+-- 34. PER-RIDER SMS & APP DELIVERY REPORTS (DLR TRACKING)
+CREATE TABLE IF NOT EXISTS public.sms_delivery_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    campaign_id UUID NOT NULL REFERENCES public.sms_job_campaigns(id) ON DELETE CASCADE,
+    rider_id UUID NOT NULL REFERENCES public.rider_profiles(id) ON DELETE CASCADE,
+    rider_name VARCHAR(150) NOT NULL,
+    raw_phone VARCHAR(30) NOT NULL,
+    normalized_phone VARCHAR(20),
+    network VARCHAR(20) NOT NULL CHECK (network IN ('MTN', 'Airtel', 'Other', 'Invalid')),
+    phone_type VARCHAR(20) NOT NULL CHECK (phone_type IN ('smartphone', 'feature_phone')),
+    channel VARCHAR(20) NOT NULL CHECK (channel IN ('sms', 'in_app', 'both', 'skipped')),
+    sms_status VARCHAR(30) NOT NULL CHECK (sms_status IN ('queued', 'sent', 'delivered', 'failed', 'invalid_number', 'opted_out', 'blocked_unconfigured')),
+    app_notif_sent BOOLEAN DEFAULT FALSE,
+    provider_message_id VARCHAR(120),
+    cost_ugx NUMERIC(10, 2) DEFAULT 0,
+    failure_reason TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+CREATE INDEX IF NOT EXISTS idx_rider_prefs_rider ON public.rider_job_alert_preferences(rider_id);
+CREATE INDEX IF NOT EXISTS idx_sms_campaigns_job ON public.sms_job_campaigns(job_id);
+CREATE INDEX IF NOT EXISTS idx_sms_campaigns_sent_at ON public.sms_job_campaigns(sent_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sms_dlr_campaign ON public.sms_delivery_logs(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_sms_dlr_provider_msg ON public.sms_delivery_logs(provider_message_id);
+CREATE INDEX IF NOT EXISTS idx_sms_dlr_status ON public.sms_delivery_logs(sms_status);
+
 

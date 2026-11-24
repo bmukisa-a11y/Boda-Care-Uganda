@@ -25,27 +25,30 @@ export const StageLeaderDashboard: React.FC<StageLeaderDashboardProps> = ({ lang
   const t = translations[lang];
 
   const [stages] = useState<Stage[]>(() => storage.getStages());
-  const [selectedStageId, setSelectedStageId] = useState<string>('stage-kikyusa-main');
+  const [selectedStageId, setSelectedStageId] = useState<string>(() => storage.getStages()[0]?.id || '');
 
-  const currentStage = stages.find((s) => s.id === selectedStageId) || stages[0];
+  const currentStage = stages.find((s) => s.id === selectedStageId) || stages[0] || null;
+  const activeStageId = currentStage?.id || '';
 
   const [riders, setRiders] = useState<RiderProfile[]>(() =>
-    storage.getRiders().filter((r) => r.stageId === currentStage.id)
+    activeStageId ? storage.getRiders().filter((r) => r.stageId === activeStageId) : []
   );
 
   const [announcements, setAnnouncements] = useState<StageAnnouncement[]>(() =>
-    storage.getAnnouncements(currentStage.id)
+    activeStageId ? storage.getAnnouncements(activeStageId) : []
   );
 
   // Daily attendance state mapping riderId -> status & feePaid
   const [attendance, setAttendance] = useState<Record<string, { status: 'present' | 'absent'; feePaid: boolean }>>(() => {
     const map: Record<string, { status: 'present' | 'absent'; feePaid: boolean }> = {};
-    storage.getRiders().filter((r) => r.stageId === currentStage.id).forEach((r, idx) => {
-      map[r.id] = {
-        status: idx === 2 ? 'absent' : 'present',
-        feePaid: idx !== 2,
-      };
-    });
+    if (activeStageId) {
+      storage.getRiders().filter((r) => r.stageId === activeStageId).forEach((r, idx) => {
+        map[r.id] = {
+          status: idx === 2 ? 'absent' : 'present',
+          feePaid: idx !== 2,
+        };
+      });
+    }
     return map;
   });
 
@@ -65,7 +68,8 @@ export const StageLeaderDashboard: React.FC<StageLeaderDashboardProps> = ({ lang
   );
 
   const totalPresent = Object.values(attendance).filter((a) => a.status === 'present').length;
-  const totalWelfareCollected = Object.values(attendance).filter((a) => a.feePaid).length * currentStage.dailyWelfareFeeUgx;
+  const totalWelfareCollected =
+    Object.values(attendance).filter((a) => a.feePaid).length * (currentStage?.dailyWelfareFeeUgx || 1000);
 
   const toggleAttendanceStatus = (riderId: string) => {
     const current = attendance[riderId] || { status: 'present', feePaid: true };
@@ -93,7 +97,7 @@ export const StageLeaderDashboard: React.FC<StageLeaderDashboardProps> = ({ lang
 
   const handleCreateAnnouncement = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!annTitle.trim() || !annContent.trim()) return;
+    if (!currentStage || !annTitle.trim() || !annContent.trim()) return;
 
     const newAnn: StageAnnouncement = {
       id: `ann-${Date.now()}`,
@@ -111,6 +115,22 @@ export const StageLeaderDashboard: React.FC<StageLeaderDashboardProps> = ({ lang
     setAnnContent('');
     setShowAnnounceModal(false);
   };
+
+  if (!currentStage) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 text-center shadow-sm space-y-3">
+          <div className="w-16 h-16 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center mx-auto">
+            <Building2 className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-extrabold text-slate-900">No Boda Stages Registered Yet</h2>
+          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+            No boda stages are currently registered on the platform. The Super Administrator can add and assign boda stages at any time via the Central Registry.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">

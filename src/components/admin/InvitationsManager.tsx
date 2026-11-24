@@ -52,7 +52,7 @@ export const InvitationsManager: React.FC<InvitationsManagerProps> = ({ lang }) 
 
   // Generate unique invite code
   const generateInviteCode = (role: PlatformInvitation['role']) => {
-    const prefix = role === 'rider' ? 'RIDER' : role === 'stage_leader' ? 'STAGE' : role === 'mechanic' ? 'MECH' : role === 'delivery' ? 'DELIV' : 'PASS';
+    const prefix = role === 'rider' ? 'RIDER' : role === 'stage_leader' ? 'STAGE' : role === 'mechanic' ? 'MECH' : role === 'station_operator' ? 'SWAP' : role === 'employer' ? 'EMP' : role === 'delivery' ? 'DELIV' : 'PASS';
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     return `BODA-${prefix}-${randomNum}`;
   };
@@ -98,6 +98,8 @@ export const InvitationsManager: React.FC<InvitationsManagerProps> = ({ lang }) 
       passenger: 'passenger',
       stage_leader: 'stage chairperson',
       mechanic: 'motorcycle mechanic / garage owner',
+      station_operator: 'battery swap station operator',
+      employer: 'business / cargo employer',
       delivery: 'parcel delivery operator',
       super_admin: 'system administrator',
     };

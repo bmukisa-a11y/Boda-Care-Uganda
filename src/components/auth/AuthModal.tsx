@@ -16,8 +16,9 @@ import {
   User,
   Copy,
   Check,
+  AlertCircle,
 } from 'lucide-react';
-import { UserRole, User as UserType } from '../../types';
+import { PassengerProfile, RiderProfile, UserRole, User as UserType } from '../../types';
 import { storage, OFFICIAL_PAYMENT_DETAILS, safeCopyToClipboard } from '../../lib/storage';
 import { translations, Language } from '../../lib/i18n';
 
@@ -59,6 +60,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regInviteCode, setRegInviteCode] = useState(initialInviteCode || '');
   const [regPhotoUrl, setRegPhotoUrl] = useState('');
   const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [verifiedSignIn, setVerifiedSignIn] = useState<{ role: UserRole; name: string; phone: string } | null>(null);
 
   const handleCopyPaymentNumber = (num: string, network: string) => {
     safeCopyToClipboard(num);
@@ -68,27 +73,126 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Quick preset accounts
-  const quickAccounts = [
-    { name: 'Brian Mukisa', role: 'super_admin' as UserRole, phone: '+256 772 100 240', title: 'Founder & Super Admin' },
-    { name: 'Kato Moses', role: 'rider' as UserRole, phone: '+256 774 912 304', title: 'Verified Rider (UFG 421K)' },
-    { name: 'Babirye Prossy', role: 'passenger' as UserRole, phone: '+256 772 901 882', title: 'Passenger / Customer' },
-    { name: 'Chairman Mugisha', role: 'stage_leader' as UserRole, phone: '+256 772 458 912', title: 'Kikyusa Stage Leader' },
-    { name: 'Ssekandi Fred', role: 'mechanic' as UserRole, phone: '+256 775 889 120', title: 'Garage & Spares' },
-  ];
+  // Dynamic quick preset accounts derived from live platform records (Super Admin always available)
+  const liveRiders = storage.getRiders().filter((r) => r.accountStatus === 'active');
+  const livePassengers = storage.getPassengers().filter((p) => !p.accountStatus || p.accountStatus === 'active');
+  const liveStages = storage.getStages().filter((s) => !s.operatingStatus || s.operatingStatus === 'active');
+  const liveBusinesses = storage.getBusinesses();
 
-  const handleQuickLogin = (acc: typeof quickAccounts[0]) => {
+  const quickAccounts: Array<{ name: string; role: UserRole; phone: string; title: string }> = [
+    { name: 'Brian Mukisa', role: 'super_admin', phone: '+256 772 100 240', title: 'Founder & Super Admin' },
+  ];
+  if (liveRiders.length > 0) {
+    const r = liveRiders[0];
+    quickAccounts.push({
+      name: r.fullName,
+      role: 'rider',
+      phone: r.phone,
+      title: `Verified Rider (${r.motorcycleReg || 'Boda'})`,
+    });
+  }
+  if (livePassengers.length > 0) {
+    const p = livePassengers[0];
+    quickAccounts.push({
+      name: p.fullName,
+      role: 'passenger',
+      phone: p.phone,
+      title: 'Passenger / Customer',
+    });
+  }
+  if (liveStages.length > 0) {
+    const s = liveStages[0];
+    quickAccounts.push({
+      name: s.leaderName || s.name,
+      role: 'stage_leader',
+      phone: s.leaderPhone,
+      title: s.name,
+    });
+  }
+  if (liveBusinesses.length > 0) {
+    const b = liveBusinesses[0];
+    quickAccounts.push({
+      name: b.ownerName || b.name,
+      role: 'mechanic',
+      phone: b.phone,
+      title: b.name || 'Garage & Spares',
+    });
+  }
+
+  const handleQuickLogin = async (acc: (typeof quickAccounts)[0]) => {
+    setAuthError(null);
+    if (acc.role === 'super_admin') {
+      onLoginSuccess(acc.role, acc.name, acc.phone);
+      onClose();
+      return;
+    }
+
+    setIsSigningIn(true);
+    try {
+      const resp = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: acc.phone, role: acc.role }),
+      });
+      const ct = resp.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        const data = (await resp.json()) as { error?: string; role?: UserRole; fullName?: string; phone?: string };
+        if (!resp.ok) {
+          setAuthError(data.error || 'Account access denied by administrator.');
+          return;
+        }
+        onLoginSuccess((data.role as UserRole) || acc.role, data.fullName || acc.name, data.phone || acc.phone);
+        onClose();
+        return;
+      }
+    } catch {
+      // Offline fallback allowed only for live non-revoked cache items
+    } finally {
+      setIsSigningIn(false);
+    }
+
     onLoginSuccess(acc.role, acc.name, acc.phone);
     onClose();
   };
 
-  const handleSignInSubmit = (e: React.FormEvent) => {
+  const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Check if founder is logging in
-    const isFounder =
-      signInIdentifier.includes('bmukisa') ||
-      signInIdentifier.includes('772100240') ||
-      selectedRole === 'super_admin';
+    setAuthError(null);
+    setIsSigningIn(true);
+    try {
+      const isEmail = signInIdentifier.includes('@');
+      const resp = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: isEmail ? undefined : signInIdentifier.trim(),
+          email: isEmail ? signInIdentifier.trim() : undefined,
+          role: selectedRole,
+        }),
+      });
+      const ct = resp.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        const data = (await resp.json()) as {
+          error?: string;
+          role?: UserRole;
+          fullName?: string;
+          phone?: string;
+        };
+        if (!resp.ok) {
+          setAuthError(data.error || 'Sign-in rejected. Please check your credentials or contact Super Admin.');
+          return;
+        }
+        setVerifiedSignIn({
+          role: (data.role as UserRole) || selectedRole,
+          name: data.fullName || 'BodaCare Member',
+          phone: data.phone || signInIdentifier.trim(),
+        });
+      }
+    } catch {
+      setVerifiedSignIn(null);
+    } finally {
+      setIsSigningIn(false);
+    }
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedOtp(code);
@@ -98,6 +202,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleVerifyOtp = (e: React.FormEvent) => {
     e.preventDefault();
+    if (verifiedSignIn) {
+      onLoginSuccess(verifiedSignIn.role, verifiedSignIn.name, verifiedSignIn.phone);
+      onClose();
+      return;
+    }
+
     const formattedPhone = signInIdentifier.startsWith('+')
       ? signInIdentifier
       : `+256 ${signInIdentifier.replace(/^0/, '')}`;
@@ -105,61 +215,100 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     const displayName =
       selectedRole === 'super_admin'
         ? 'Brian Mukisa (Founder)'
-        : selectedRole === 'rider'
-        ? 'Kato Moses'
-        : selectedRole === 'stage_leader'
-        ? 'Chairman Mugisha David'
-        : selectedRole === 'mechanic'
-        ? 'Makanika Ssekandi Fred'
-        : 'Babirye Prossy';
+        : liveRiders[0]?.fullName || 'BodaCare Member';
 
     onLoginSuccess(selectedRole, displayName, formattedPhone);
     onClose();
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isRegistering) return;
+    setAuthError(null);
+    setIsRegistering(true);
 
-    const formattedPhone = regPhone.startsWith('+')
-      ? regPhone
-      : `+256 ${regPhone.replace(/^0/, '')}`;
+    try {
+      const formattedPhone = regPhone.startsWith('+')
+        ? regPhone
+        : `+256 ${regPhone.replace(/^0/, '')}`;
 
-    // Verify invite code if provided
-    if (regInviteCode.trim()) {
-      storage.updateInvitationStatus(regInviteCode.trim(), 'registered', regFullName.trim());
+      // Verify invite code if provided
+      if (regInviteCode.trim()) {
+        storage.updateInvitationStatus(regInviteCode.trim(), 'registered', regFullName.trim());
+      }
+
+      // Sync with backend SQLite & enforce revocation / RBAC rules
+      try {
+        const resp = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: regFullName.trim(),
+            phone: formattedPhone,
+            email: regEmail.trim() || undefined,
+            role: regRole,
+            location: regLocation.trim(),
+            inviteCodeUsed: regInviteCode.trim() || undefined,
+            avatarUrl: regPhotoUrl.trim() || undefined,
+          }),
+        });
+        const contentType = resp.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = (await resp.json()) as {
+            error?: string;
+            role?: string;
+            profile?: RiderProfile | PassengerProfile;
+          };
+          if (!resp.ok) {
+            setAuthError(data.error || 'Registration could not be completed.');
+            return;
+          }
+          if (data.role === 'rider' && data.profile) {
+            storage.saveRider(data.profile as RiderProfile);
+          } else if (data.role === 'passenger' && data.profile) {
+            const p = data.profile as PassengerProfile;
+            storage.setPassengersCache([p, ...storage.getPassengers().filter((x) => x.id !== p.id)]);
+          }
+          await storage.syncDirectoryFromServer();
+        }
+      } catch {
+        // Static/offline environments continue registration seamlessly
+      }
+
+      // Save to users table
+      const newUser: UserType = {
+        id: `user-${Date.now()}`,
+        phone: formattedPhone,
+        fullName: regFullName.trim(),
+        email: regEmail.trim() || undefined,
+        role: regRole,
+        location: regLocation,
+        accountType: regRole.replace('_', ' '),
+        inviteCodeUsed: regInviteCode.trim() || undefined,
+        createdAt: new Date().toISOString().split('T')[0],
+        preferredLanguage: lang,
+        avatarUrl: regPhotoUrl.trim() || undefined,
+        isSuperAdmin: false,
+      };
+
+      storage.saveUser(newUser);
+
+      // Add audit log
+      storage.addAuditLog({
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        actorName: newUser.fullName,
+        actorRole: newUser.role,
+        action: 'USER_REGISTERED',
+        target: `${newUser.role.toUpperCase()} in ${newUser.location}`,
+        details: `New account created via phone ${newUser.phone}. Referral code: ${newUser.inviteCodeUsed || 'Direct'}.`,
+      });
+
+      onLoginSuccess(regRole, newUser.fullName, newUser.phone);
+      onClose();
+    } finally {
+      setIsRegistering(false);
     }
-
-    // Save to users table
-    const newUser: UserType = {
-      id: `user-${Date.now()}`,
-      phone: formattedPhone,
-      fullName: regFullName.trim(),
-      email: regEmail.trim() || undefined,
-      role: regRole,
-      location: regLocation,
-      accountType: regRole.replace('_', ' '),
-      inviteCodeUsed: regInviteCode.trim() || undefined,
-      createdAt: new Date().toISOString().split('T')[0],
-      preferredLanguage: lang,
-      avatarUrl: regPhotoUrl.trim() || undefined,
-      isSuperAdmin: regRole === 'super_admin',
-    };
-
-    storage.saveUser(newUser);
-
-    // Add audit log
-    storage.addAuditLog({
-      id: `log-${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      actorName: newUser.fullName,
-      actorRole: newUser.role,
-      action: 'USER_REGISTERED',
-      target: `${newUser.role.toUpperCase()} in ${newUser.location}`,
-      details: `New account created via phone ${newUser.phone}. Referral code: ${newUser.inviteCodeUsed || 'Direct'}.`,
-    });
-
-    onLoginSuccess(regRole, newUser.fullName, newUser.phone);
-    onClose();
   };
 
   return (
@@ -168,17 +317,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* Modal Top Header */}
         <div className="bg-[#0B192C] text-white p-5 flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center text-sm">
-              BC
-            </div>
+            <img
+              src="/eboda-brand-icon.png"
+              alt="E Boda Connect Luweero"
+              className="w-9 h-9 rounded-lg border border-amber-400/40 object-cover shrink-0"
+            />
             <div>
-              <h3 className="text-base font-bold text-white">BodaCare Uganda Authentication</h3>
-              <p className="text-[11px] text-slate-400">Secure Ugandan Telecoms & Role Access</p>
+              <h3 className="text-base font-bold text-white">E Boda Connect Luweero</h3>
+              <p className="text-[11px] text-slate-400">BodaCare Uganda · Account Sign In &amp; Registration</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+            aria-label="Close authentication modal"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -190,8 +342,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             onClick={() => {
               setAuthMode('signin');
               setStep('credentials');
+              setAuthError(null);
             }}
-            className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            className={`min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
               authMode === 'signin'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -200,8 +353,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             Sign In to Account
           </button>
           <button
-            onClick={() => setAuthMode('register')}
-            className={`py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            onClick={() => {
+              setAuthMode('register');
+              setAuthError(null);
+            }}
+            className={`min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
               authMode === 'register'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -213,6 +369,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Modal Scrollable Body */}
         <div className="p-5 overflow-y-auto space-y-4">
+          {authError && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-semibold flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <span>{authError}</span>
+            </div>
+          )}
           {/* 1. SIGN IN FLOW */}
           {authMode === 'signin' && (
             <>
@@ -271,10 +433,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-[#0B192C] hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    disabled={isSigningIn}
+                    className="w-full py-2.5 bg-[#0B192C] hover:bg-slate-800 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Smartphone className="w-4 h-4 text-amber-400" />
-                    <span>Proceed to OTP Verification</span>
+                    <span>{isSigningIn ? 'Checking Account...' : 'Proceed to OTP Verification'}</span>
                   </button>
 
                   {/* Quick One-Click Demo Role Accounts */}
@@ -549,10 +712,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={isRegistering}
+                  className="w-full py-3 bg-amber-400 hover:bg-amber-300 disabled:opacity-60 text-slate-950 font-extrabold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <UserPlus className="w-4 h-4" />
-                  <span>Register Account & Join BodaCare</span>
+                  <span>{isRegistering ? 'Creating Account...' : 'Register Account & Join BodaCare'}</span>
                 </button>
               </div>
             </form>

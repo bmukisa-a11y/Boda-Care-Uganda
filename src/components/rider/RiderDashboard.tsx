@@ -19,17 +19,27 @@ import {
   Bell,
   RefreshCw,
   CreditCard,
+  UserCheck,
+  Briefcase,
+  Zap,
+  Wallet,
+  QrCode,
 } from 'lucide-react';
 import { RiderProfile, IncomeRecord, ExpenseRecord, MaintenanceReminder, Booking, StageAnnouncement } from '../../types';
 import { storage } from '../../lib/storage';
 import { formatUgx, translations, Language } from '../../lib/i18n';
 import { RiderPaymentHub } from './RiderPaymentHub';
+import { RiderProfileModal } from './RiderProfileModal';
+import { RiderJobAlertsCard } from './RiderJobAlertsCard';
+import { OfflineFreshnessBanner } from '../common/OfflineFreshnessBanner';
 
 interface RiderDashboardProps {
   lang: Language;
   onOpenSOS: () => void;
   onOpenPayment: () => void;
   isOffline: boolean;
+  lastSyncedAt?: string | null;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export const RiderDashboard: React.FC<RiderDashboardProps> = ({
@@ -37,22 +47,26 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
   onOpenSOS,
   onOpenPayment,
   isOffline,
+  lastSyncedAt = null,
+  onNavigateTab,
 }) => {
   const t = translations[lang];
 
-  // Rider View Tab: Operations vs Payments
-  const [activeView, setActiveView] = useState<'operations' | 'payments'>('operations');
+  // Rider View Tab: Operations vs Payments vs Job Alerts
+  const [activeView, setActiveView] = useState<'operations' | 'payments' | 'alerts'>('operations');
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
-  // Load rider: Kato Moses
-  const [rider, setRider] = useState<RiderProfile>(() => {
-    return storage.getRiders().find((r) => r.id === 'rider-kato-moses') || storage.getRiders()[0];
+  // Load rider safely (may be null after system membership reset)
+  const [rider, setRider] = useState<RiderProfile | null>(() => {
+    const riders = storage.getRiders();
+    return riders.find((r) => r.id === 'rider-kato-moses') || riders[0] || null;
   });
 
-  const [incomes, setIncomes] = useState<IncomeRecord[]>(() => storage.getIncome(rider.id));
-  const [expenses, setExpenses] = useState<ExpenseRecord[]>(() => storage.getExpenses(rider.id));
-  const [maintenance, setMaintenance] = useState<MaintenanceReminder[]>(() => storage.getMaintenance(rider.id));
+  const [incomes, setIncomes] = useState<IncomeRecord[]>(() => (rider ? storage.getIncome(rider.id) : []));
+  const [expenses, setExpenses] = useState<ExpenseRecord[]>(() => (rider ? storage.getExpenses(rider.id) : []));
+  const [maintenance] = useState<MaintenanceReminder[]>(() => (rider ? storage.getMaintenance(rider.id) : []));
   const [bookings, setBookings] = useState<Booking[]>(() => storage.getBookings());
-  const [announcements] = useState<StageAnnouncement[]>(() => storage.getAnnouncements(rider.stageId));
+  const [announcements] = useState<StageAnnouncement[]>(() => (rider ? storage.getAnnouncements(rider.stageId) : []));
 
   // Modals for adding income & expense
   const [showIncomeModal, setShowIncomeModal] = useState(false);
@@ -86,13 +100,16 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
   const totalMonthlyGross = totalWeeklyGross + 185000; // Historical simulated base
 
   // Active bookings for this rider
-  const myActiveBookings = bookings.filter(
-    (b) => b.riderId === rider.id && (b.status === 'accepted' || b.status === 'arriving' || b.status === 'in_progress')
-  );
+  const myActiveBookings = rider
+    ? bookings.filter(
+        (b) => b.riderId === rider.id && (b.status === 'accepted' || b.status === 'arriving' || b.status === 'in_progress')
+      )
+    : [];
 
   // Form Submissions
   const handleAddIncome = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!rider) return;
     const amount = parseInt(incomeAmount, 10);
     if (isNaN(amount) || amount <= 0) return;
 
@@ -121,6 +138,7 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
 
   const handleAddExpense = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!rider) return;
     const amount = parseInt(expenseAmount, 10);
     if (isNaN(amount) || amount <= 0) return;
 
@@ -149,7 +167,7 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
   const handleTripProgress = (bookingId: string, nextStatus: Booking['status']) => {
     storage.updateBookingStatus(bookingId, nextStatus);
     setBookings(storage.getBookings());
-    if (nextStatus === 'completed') {
+    if (nextStatus === 'completed' && rider) {
       // Auto-add income
       const b = bookings.find((x) => x.id === bookingId);
       if (b) {
@@ -169,14 +187,74 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
     }
   };
 
+  if (!rider) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 text-center shadow-sm space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
+            <Bike className="w-8 h-8" />
+          </div>
+          <div className="space-y-1.5 max-w-lg mx-auto">
+            <h2 className="text-xl font-extrabold text-slate-900">No Boda Riders Registered Yet</h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              The rider directory is currently empty. New boda riders can register an account or be added manually by the Super Administrator through the Central Registry.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            {onNavigateTab && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('landing')}
+                  className="px-5 py-2.5 rounded-xl bg-[#0B192C] hover:bg-slate-800 text-white font-bold text-xs cursor-pointer"
+                >
+                  Return to Home
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('jobs')}
+                  className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs cursor-pointer"
+                >
+                  Browse Jobs Marketplace
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const riderInitials =
+    rider.fullName
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || 'BR';
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+      <OfflineFreshnessBanner
+        isOffline={isOffline}
+        lastSyncedAt={lastSyncedAt}
+        contextLabel="Cached rider trips & earnings — new entries queue safely until reconnect"
+      />
       {/* 1. Rider Profile Header Banner */}
       <div className="bg-[#0B192C] text-white rounded-2xl p-5 shadow-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-xl border-2 border-amber-300 shrink-0">
-            KM
-          </div>
+          {rider.avatarUrl ? (
+            <img
+              src={rider.avatarUrl}
+              alt={rider.fullName}
+              className="w-14 h-14 rounded-2xl object-cover border-2 border-amber-300 shrink-0 bg-slate-800"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-xl border-2 border-amber-300 shrink-0">
+              {riderInitials}
+            </div>
+          )}
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold tracking-tight text-white">{rider.fullName}</h2>
@@ -212,6 +290,14 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
           </div>
 
           <button
+            onClick={() => setShowProfileModal(true)}
+            className="px-3.5 py-2 rounded-xl bg-sky-900 hover:bg-sky-800 text-white font-bold text-xs flex items-center gap-1.5 shadow transition-all cursor-pointer border border-sky-700"
+          >
+            <UserCheck className="w-3.5 h-3.5 text-amber-300" />
+            <span>ID Pass & KYC</span>
+          </button>
+
+          <button
             onClick={() => setActiveView('payments')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition-all cursor-pointer ${
               activeView === 'payments'
@@ -240,6 +326,65 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
         </div>
       </div>
 
+      {/* Quick Access to Key Modules */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button
+          type="button"
+          onClick={() => onNavigateTab && onNavigateTab('jobs')}
+          className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-amber-400 hover:shadow-md transition-all text-left flex items-center gap-3 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 group-hover:bg-emerald-200 text-emerald-700 flex items-center justify-center shrink-0 transition-colors">
+            <Briefcase className="w-5 h-5" />
+          </div>
+          <div className="overflow-hidden">
+            <span className="text-xs font-bold text-slate-900 block truncate">Jobs & Deliveries</span>
+            <span className="text-[10px] text-slate-500">Apply & Earn</span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onNavigateTab && onNavigateTab('swaps')}
+          className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-amber-400 hover:shadow-md transition-all text-left flex items-center gap-3 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-amber-100 group-hover:bg-amber-200 text-amber-700 flex items-center justify-center shrink-0 transition-colors">
+            <Zap className="w-5 h-5" />
+          </div>
+          <div className="overflow-hidden">
+            <span className="text-xs font-bold text-slate-900 block truncate">Battery Swaps</span>
+            <span className="text-[10px] text-slate-500">EV Station Map</span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onNavigateTab && onNavigateTab('repairs')}
+          className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-amber-400 hover:shadow-md transition-all text-left flex items-center gap-3 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-sky-100 group-hover:bg-sky-200 text-sky-700 flex items-center justify-center shrink-0 transition-colors">
+            <Wrench className="w-5 h-5" />
+          </div>
+          <div className="overflow-hidden">
+            <span className="text-xs font-bold text-slate-900 block truncate">Maintenance</span>
+            <span className="text-[10px] text-slate-500">Log & Mechanics</span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onNavigateTab && onNavigateTab('wallet')}
+          className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-amber-400 hover:shadow-md transition-all text-left flex items-center gap-3 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-indigo-100 group-hover:bg-indigo-200 text-indigo-700 flex items-center justify-center shrink-0 transition-colors">
+            <Wallet className="w-5 h-5" />
+          </div>
+          <div className="overflow-hidden">
+            <span className="text-xs font-bold text-slate-900 block truncate">Digital Wallet</span>
+            <span className="text-[10px] text-slate-500">UGX {(rider.walletBalanceUgx || 45000).toLocaleString()}</span>
+          </div>
+        </button>
+      </div>
+
       {/* Navigation Sub-Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
@@ -265,6 +410,17 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
           {rider.subscriptionStatus === 'pending_verification' && (
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
           )}
+        </button>
+        <button
+          onClick={() => setActiveView('alerts')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeView === 'alerts'
+              ? 'bg-[#0B192C] text-white shadow'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <Bell className="w-3.5 h-3.5 text-emerald-500" />
+          <span>Contact &amp; Job Alert Preferences</span>
         </button>
       </div>
 
@@ -309,6 +465,11 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
           lang={lang}
           onOpenPaymentModal={onOpenPayment}
           onRefreshRider={() => setRider(storage.getRiders().find((r) => r.id === rider.id) || rider)}
+        />
+      ) : activeView === 'alerts' ? (
+        <RiderJobAlertsCard
+          rider={rider}
+          onUpdated={(updated) => setRider(updated)}
         />
       ) : (
         <>
@@ -796,6 +957,14 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
           </div>
         </div>
       )}
+
+      {/* Module 1: Comprehensive Rider Profile, EV Specs, KYC & Digital QR Badge Pass */}
+      <RiderProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        rider={rider}
+        onProfileUpdated={(updated) => setRider(updated)}
+      />
     </div>
   );
 };

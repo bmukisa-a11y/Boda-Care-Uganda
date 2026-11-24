@@ -2,33 +2,39 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0B192C" />
-    <title>BodaCare Uganda</title>
-    <meta name="description" content="Digital platform for boda-boda operators, passengers, stage leaders, and mechanics in Luweero District and across Uganda." />
-    <meta property="og:title" content="BodaCare Uganda" />
-    <meta property="og:description" content="Digital platform for boda-boda operators, passengers, stage leaders, and mechanics in Luweero District and across Uganda." />
+    <title>E Boda Connect Luweero — BodaCare Uganda</title>
+    <meta name="description" content="Installable digital platform for boda-boda riders, passengers, stage leaders, mechanics, battery swaps, and verified jobs in Luweero District and across Uganda." />
+    <meta property="og:title" content="E Boda Connect Luweero — BodaCare Uganda" />
+    <meta property="og:description" content="Installable digital platform for boda-boda riders, passengers, stage leaders, mechanics, battery swaps, and verified jobs in Luweero District and across Uganda." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Android & iOS Installable PWA Metadata -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="E Boda" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-400 selection:text-slate-900">
     <div id="root">
-      <div style="min-height: 100vh; background-color: #0B192C; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; text-align: center; box-sizing: border-box;">
-        <div style="width: 64px; height: 64px; border-radius: 18px; background-color: #FBBF24; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; box-shadow: 0 10px 25px rgba(251, 191, 36, 0.35);">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0B192C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="18.5" cy="17.5" r="3.5"/>
-            <circle cx="5.5" cy="17.5" r="3.5"/>
-            <circle cx="15" cy="5" r="1"/>
-            <path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
-          </svg>
+      <div style="min-height: 100vh; background-color: #0B192C; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; text-align: center; box-sizing: border-box;">
+        <div style="width: 92px; height: 92px; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; box-shadow: 0 14px 32px rgba(251, 191, 36, 0.25); border: 2px solid rgba(251, 191, 36, 0.35); background-color: #0B192C;">
+          <img src="/eboda-brand-icon.png" alt="E Boda Connect Luweero" style="width: 100%; height: 100%; object-fit: cover;" />
         </div>
-        <h1 style="font-size: 24px; font-weight: 800; margin: 0 0 6px 0; color: #ffffff; letter-spacing: -0.5px;">BodaCare Uganda</h1>
-        <p style="font-size: 13px; color: #94A3B8; margin: 0 0 24px 0; max-width: 300px; line-height: 1.4;">Connecting Riders, Passengers & Stage Leaders in Luweero District</p>
+        <h1 style="font-size: 24px; font-weight: 800; margin: 0 0 6px 0; color: #ffffff; letter-spacing: -0.5px;">E Boda Connect Luweero</h1>
+        <p style="font-size: 13px; color: #CBD5E1; margin: 0 0 24px 0; max-width: 320px; line-height: 1.45;">BodaCare Uganda · Riders, Passengers, Stage Leaders &amp; E-Boda Swaps</p>
         <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid rgba(251, 191, 36, 0.2); border-radius: 50%; border-top-color: #FBBF24; animation: bodaspin 0.8s linear infinite;"></div>
-        <p style="font-size: 11px; color: #64748B; margin-top: 18px;">Loading digital mobility portal...</p>
+        <p style="font-size: 11px; color: #94A3B8; margin-top: 18px;">Starting E Boda Connect Luweero...</p>
         <style>
           @keyframes bodaspin { to { transform: rotate(360deg); } }
         </style>
@@ -36,7 +42,7 @@
     </div>
     <noscript>
       <div style="padding: 24px; text-align: center; font-family: sans-serif; background: #FFFBEB; color: #92400E; border-bottom: 2px solid #FCD34D;">
-        <strong>JavaScript Required:</strong> Please enable JavaScript on your browser or Android Chrome to use BodaCare Uganda.
+        <strong>JavaScript Required:</strong> Please enable JavaScript on your browser or Android Chrome to use E Boda Connect Luweero.
       </div>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>

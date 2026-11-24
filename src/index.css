@@ -20,6 +20,12 @@
   }
 }
 
+html,
+body {
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+}
+
 /* Custom scrollbar for clean dashboard feeds */
 ::-webkit-scrollbar {
   width: 6px;
@@ -36,8 +42,40 @@
   background: #94a3b8;
 }
 
-/* Safe touch area helpers */
+/* Safe touch area helpers & Android gesture bar padding */
 .touch-target {
   min-height: 44px;
   min-width: 44px;
+}
+
+.safe-area-pb {
+  padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
+}
+
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top);
+}
+
+@keyframes ebodaPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: ebodaPageEnter 160ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

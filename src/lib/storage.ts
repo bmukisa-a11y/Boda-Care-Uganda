@@ -28,6 +28,19 @@ import {
   User,
   FounderProfile,
   PlatformInvitation,
+  BodaJob,
+  JobApplication,
+  BatterySwapStation,
+  StationProblemReport,
+  RepairRequest,
+  ServiceRecord,
+  RiderWallet,
+  WalletTransaction,
+  ExternalServicesConfig,
+  ComplaintReport,
+  RiderJobAlertPreferences,
+  SmsCampaignRecord,
+  JobAlertDispatchMode,
 } from '../types';
 
 import heroImage from '../assets/images/bodacare_rider_hero_1793382094028.jpg';
@@ -212,6 +225,7 @@ export const INITIAL_RIDERS: RiderProfile[] = [
   {
     id: 'rider-kato-moses',
     userId: 'user-kato-01',
+    riderIdNumber: 'BCU-LWR-0421',
     fullName: 'Kato Moses',
     phone: '+256 774 912 304',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
@@ -221,8 +235,13 @@ export const INITIAL_RIDERS: RiderProfile[] = [
     stageId: 'stage-kikyusa-main',
     stageName: 'Kikyusa Main Stage',
     motorcycleReg: 'UFG 421K',
-    motorcycleMakeModel: 'Bajaj Boxer BM150 (Red)',
+    motorcycleMakeModel: 'Bodawerk E-Boda (Electric Yellow)',
+    motorcycleType: 'electric',
+    batteryModel: 'Bodawerk 48V 50Ah LiFePO4',
     ownershipStatus: 'owner',
+    ninDocumentUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
+    permitDocumentUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&auto=format&fit=crop&q=80',
+    stageLetterUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
     emergencyContactName: 'Nalubega Sarah (Wife)',
     emergencyContactPhone: '+256 779 120 445',
     verificationStatus: 'verified',
@@ -235,10 +254,23 @@ export const INITIAL_RIDERS: RiderProfile[] = [
     isOnline: true,
     helmetAvailable: true,
     registrationDate: '2025-08-14',
+    walletBalanceUgx: 65000,
+    phoneType: 'smartphone',
+    village: 'Kikyusa Central',
+    subCounty: 'Kikyusa',
+    jobAlertPreferences: {
+      enabled: true,
+      preferredChannel: 'auto',
+      optedOutSms: false,
+      jobTypes: ['produce_transport', 'parcel_delivery', 'scheduled_courier', 'corporate_boda', 'passenger_contract'],
+      preferredSubCounties: ['Kikyusa', 'Luweero Town Council', 'Kasana'],
+      updatedAt: '2026-11-01T08:00:00Z',
+    },
   },
   {
     id: 'rider-ssempijja-ronald',
     userId: 'user-ronald-02',
+    riderIdNumber: 'BCU-LWR-0819',
     fullName: 'Ssempijja Ronald',
     phone: '+256 702 331 990',
     avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
@@ -249,7 +281,10 @@ export const INITIAL_RIDERS: RiderProfile[] = [
     stageName: 'Luweero Taxi Park Boda Stage',
     motorcycleReg: 'UFA 819D',
     motorcycleMakeModel: 'TVS HLX 125 (Black)',
+    motorcycleType: 'petrol',
     ownershipStatus: 'rental',
+    ninDocumentUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
+    permitDocumentUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&auto=format&fit=crop&q=80',
     emergencyContactName: 'Mukasa Ssempijja (Brother)',
     emergencyContactPhone: '+256 752 901 324',
     verificationStatus: 'verified',
@@ -261,10 +296,23 @@ export const INITIAL_RIDERS: RiderProfile[] = [
     isOnline: true,
     helmetAvailable: true,
     registrationDate: '2025-11-02',
+    walletBalanceUgx: 32000,
+    phoneType: 'smartphone',
+    village: 'Kasana West',
+    subCounty: 'Luweero Town Council',
+    jobAlertPreferences: {
+      enabled: true,
+      preferredChannel: 'both',
+      optedOutSms: false,
+      jobTypes: ['produce_transport', 'parcel_delivery', 'corporate_boda'],
+      preferredSubCounties: ['Luweero Town Council', 'Kasana'],
+      updatedAt: '2026-11-01T08:00:00Z',
+    },
   },
   {
     id: 'rider-mugwanya-isaac',
     userId: 'user-isaac-03',
+    riderIdNumber: 'BCU-LWR-0902',
     fullName: 'Mugwanya Isaac',
     phone: '+256 788 412 900',
     avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
@@ -274,8 +322,12 @@ export const INITIAL_RIDERS: RiderProfile[] = [
     stageId: 'stage-kasana-market',
     stageName: 'Kasana Central Market Stage',
     motorcycleReg: 'UEX 902C',
-    motorcycleMakeModel: 'Bajaj Boxer BM100 (Blue)',
+    motorcycleMakeModel: 'Zembo Storm E-Boda (Blue)',
+    motorcycleType: 'electric',
+    batteryModel: 'Zembo 72V 35Ah QuickSwap',
     ownershipStatus: 'loan',
+    ninDocumentUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
+    permitDocumentUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&auto=format&fit=crop&q=80',
     emergencyContactName: 'Nampeera Joyce (Sister)',
     emergencyContactPhone: '+256 701 445 221',
     verificationStatus: 'pending',
@@ -288,10 +340,23 @@ export const INITIAL_RIDERS: RiderProfile[] = [
     isOnline: false,
     helmetAvailable: true,
     registrationDate: '2026-10-24',
+    walletBalanceUgx: 18000,
+    phoneType: 'feature_phone',
+    village: 'Wobulenzi East',
+    subCounty: 'Wobulenzi',
+    jobAlertPreferences: {
+      enabled: true,
+      preferredChannel: 'sms_only',
+      optedOutSms: false,
+      jobTypes: ['produce_transport', 'parcel_delivery', 'scheduled_courier', 'corporate_boda'],
+      preferredSubCounties: ['Wobulenzi', 'Kasana', 'Luweero Town Council'],
+      updatedAt: '2026-11-01T08:00:00Z',
+    },
   },
   {
     id: 'rider-kigozi-gerald',
     userId: 'user-gerald-04',
+    riderIdNumber: 'BCU-LWR-0104',
     fullName: 'Kigozi Gerald',
     phone: '+256 756 123 889',
     avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
@@ -302,7 +367,10 @@ export const INITIAL_RIDERS: RiderProfile[] = [
     stageName: 'Kikyusa Main Stage',
     motorcycleReg: 'UFR 104M',
     motorcycleMakeModel: 'Bajaj Boxer BM150 (Red)',
+    motorcycleType: 'petrol',
     ownershipStatus: 'owner',
+    ninDocumentUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
+    permitDocumentUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&auto=format&fit=crop&q=80',
     emergencyContactName: 'Kigozi Agnes (Mother)',
     emergencyContactPhone: '+256 782 994 001',
     verificationStatus: 'under_review',
@@ -316,6 +384,98 @@ export const INITIAL_RIDERS: RiderProfile[] = [
     isOnline: false,
     helmetAvailable: false,
     registrationDate: '2026-09-12',
+    walletBalanceUgx: 5000,
+    phoneType: 'feature_phone',
+    village: 'Kalagala',
+    subCounty: 'Kikyusa',
+    jobAlertPreferences: {
+      enabled: true,
+      preferredChannel: 'sms_only',
+      optedOutSms: false,
+      jobTypes: ['produce_transport', 'parcel_delivery', 'passenger_contract'],
+      preferredSubCounties: ['Kikyusa'],
+      updatedAt: '2026-11-01T08:00:00Z',
+    },
+  },
+  {
+    id: 'rider-wamala-joseph',
+    userId: 'user-wamala-05',
+    riderIdNumber: 'BCU-LWR-0612',
+    fullName: 'Wamala Joseph',
+    phone: '+256 779 441 205',
+    avatarUrl: 'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=150&auto=format&fit=crop&q=80',
+    nin: 'CM890112349K2M',
+    permitNumber: 'UG-DL-A-552019',
+    residentialArea: 'Kikyusa - Kalagala Village',
+    stageId: 'stage-kikyusa-main',
+    stageName: 'Kikyusa Main Stage',
+    motorcycleReg: 'UFH 612B',
+    motorcycleMakeModel: 'Bajaj Boxer BM150 (Blue)',
+    motorcycleType: 'petrol',
+    ownershipStatus: 'owner',
+    emergencyContactName: 'Wamala Grace',
+    emergencyContactPhone: '+256 772 883 114',
+    verificationStatus: 'verified',
+    subscriptionTier: 'standard',
+    subscriptionStatus: 'active',
+    subscriptionExpiry: '2026-12-01',
+    rating: 4.7,
+    completedTrips: 632,
+    isOnline: true,
+    helmetAvailable: true,
+    registrationDate: '2025-12-10',
+    walletBalanceUgx: 24000,
+    phoneType: 'feature_phone',
+    village: 'Kalagala',
+    subCounty: 'Kikyusa',
+    jobAlertPreferences: {
+      enabled: true,
+      preferredChannel: 'sms_only',
+      optedOutSms: false,
+      jobTypes: ['produce_transport', 'parcel_delivery', 'scheduled_courier', 'corporate_boda'],
+      preferredSubCounties: ['Kikyusa', 'Bamunanika'],
+      updatedAt: '2026-11-01T08:00:00Z',
+    },
+  },
+  {
+    id: 'rider-lubega-samuel',
+    userId: 'user-lubega-06',
+    riderIdNumber: 'BCU-LWR-0734',
+    fullName: 'Lubega Samuel',
+    phone: '+256 705 619 382',
+    avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    nin: 'CM920554109L7R',
+    permitNumber: 'UG-DL-A-618204',
+    residentialArea: 'Luweero Central',
+    stageId: 'stage-luweero-taxi-park',
+    stageName: 'Luweero Taxi Park Boda Stage',
+    motorcycleReg: 'UFP 734T',
+    motorcycleMakeModel: 'TVS HLX 125 (Red)',
+    motorcycleType: 'petrol',
+    ownershipStatus: 'owner',
+    emergencyContactName: 'Namazzi Jane',
+    emergencyContactPhone: '+256 701 992 104',
+    verificationStatus: 'verified',
+    subscriptionTier: 'standard',
+    subscriptionStatus: 'active',
+    subscriptionExpiry: '2026-12-05',
+    rating: 4.8,
+    completedTrips: 510,
+    isOnline: true,
+    helmetAvailable: true,
+    registrationDate: '2026-01-18',
+    walletBalanceUgx: 19500,
+    phoneType: 'feature_phone',
+    village: 'Luweero Central',
+    subCounty: 'Luweero Town Council',
+    jobAlertPreferences: {
+      enabled: true,
+      preferredChannel: 'sms_only',
+      optedOutSms: false,
+      jobTypes: ['produce_transport', 'parcel_delivery', 'corporate_boda', 'passenger_contract'],
+      preferredSubCounties: ['Luweero Town Council', 'Kasana', 'Wobulenzi'],
+      updatedAt: '2026-11-01T08:00:00Z',
+    },
   },
 ];
 
@@ -1002,7 +1162,452 @@ export const INITIAL_USERS: User[] = [
     createdAt: '2025-07-15',
     preferredLanguage: 'en',
   },
+  {
+    id: 'user-station-opio',
+    fullName: 'Opio Samuel',
+    phone: '+256 701 334 112',
+    email: 'opio.samuel@bodawerk.co.ug',
+    role: 'station_operator',
+    isSuperAdmin: false,
+    location: 'Kikyusa Trading Centre',
+    accountType: 'Battery Swap Station Operator',
+    createdAt: '2025-09-01',
+    preferredLanguage: 'en',
+  },
+  {
+    id: 'user-employer-coop',
+    fullName: 'Nsubuga Henry',
+    phone: '+256 782 550 918',
+    email: 'kikyusacoffee@coop.ug',
+    role: 'employer',
+    isSuperAdmin: false,
+    location: 'Kikyusa & Kasana',
+    accountType: 'Agricultural Produce Dispatcher',
+    createdAt: '2025-09-15',
+    preferredLanguage: 'en',
+  },
 ];
+
+// Initial Electric Bike Battery Swap Stations in Luweero District
+export const INITIAL_SWAP_STATIONS: BatterySwapStation[] = [
+  {
+    id: 'station-kikyusa-main',
+    name: 'Kikyusa Bodawerk E-Hub (Main)',
+    operatorName: 'Opio Samuel',
+    operatorPhone: '+256 701 334 112',
+    locationName: 'Opposite Health Centre IV Roundabout, Kikyusa',
+    subCounty: 'Kikyusa',
+    lat: 0.8145,
+    lng: 32.6121,
+    totalBatteries: 20,
+    availableBatteries: 14,
+    chargingBatteries: 6,
+    batteryBrand: 'Bodawerk',
+    connectorType: 'Chogori 2+1+5 Pin High-Amp',
+    swapFeeUgx: 3500,
+    operatingHours: '24 Hours / 7 Days',
+    powerSource: 'solar_hybrid',
+    verified: true,
+    status: 'open',
+    rating: 4.9,
+    lastStockUpdate: new Date().toISOString(),
+    amenities: ['24/7 Solar Backup', 'Free WiFi', 'Digital Tyre Inflator', 'Clean Drinking Water', 'Rider Lounge'],
+  },
+  {
+    id: 'station-luweero-zembo',
+    name: 'Luweero Town Zembo Solar Station',
+    operatorName: 'Kintu Andrew',
+    operatorPhone: '+256 772 884 102',
+    locationName: 'Behind TotalEnergies, Kampala-Gulu Highway',
+    subCounty: 'Luweero Town Council',
+    lat: 0.8492,
+    lng: 32.4934,
+    totalBatteries: 24,
+    availableBatteries: 18,
+    chargingBatteries: 6,
+    batteryBrand: 'Zembo',
+    connectorType: 'Anderson SB50 Quick-Lock',
+    swapFeeUgx: 4000,
+    operatingHours: '06:00 AM - 11:00 PM',
+    powerSource: 'solar_hybrid',
+    verified: true,
+    status: 'open',
+    rating: 4.8,
+    lastStockUpdate: new Date(Date.now() - 20 * 60000).toISOString(),
+    amenities: ['Solar Hybrid Grid', 'Motorcycle Wash Bay', 'TVS & Zembo Certified Mechanic'],
+  },
+  {
+    id: 'station-wobulenzi-spiro',
+    name: 'Wobulenzi Spiro Highway Swap Point',
+    operatorName: 'Nabukeera Betty',
+    operatorPhone: '+256 754 110 392',
+    locationName: 'Wobulenzi Junction Stage, Near Stanbic ATM',
+    subCounty: 'Wobulenzi',
+    lat: 0.7214,
+    lng: 32.5312,
+    totalBatteries: 16,
+    availableBatteries: 9,
+    chargingBatteries: 7,
+    batteryBrand: 'Spiro',
+    connectorType: 'Rosenberger RoPD Heavy Duty',
+    swapFeeUgx: 3800,
+    operatingHours: '06:00 AM - 10:00 PM',
+    powerSource: 'grid',
+    verified: true,
+    status: 'open',
+    rating: 4.7,
+    lastStockUpdate: new Date(Date.now() - 45 * 60000).toISOString(),
+    amenities: ['Highway Rest Stop', 'Automated Battery Bay', 'Mobile Money Cash Out'],
+  },
+  {
+    id: 'station-kasana-market',
+    name: 'Kasana Market Green Energy Swap Hub',
+    operatorName: 'Walusimbi Deo',
+    operatorPhone: '+256 703 992 411',
+    locationName: 'Kasana Fresh Produce Market Gate 2',
+    subCounty: 'Kasana',
+    lat: 0.8621,
+    lng: 32.4819,
+    totalBatteries: 18,
+    availableBatteries: 4,
+    chargingBatteries: 14,
+    batteryBrand: 'Bodawerk',
+    connectorType: 'Chogori Universal',
+    swapFeeUgx: 3500,
+    operatingHours: '05:30 AM - 09:30 PM',
+    powerSource: 'solar_hybrid',
+    verified: true,
+    status: 'congested',
+    rating: 4.6,
+    lastStockUpdate: new Date(Date.now() - 10 * 60000).toISOString(),
+    amenities: ['High Turnover Hub', 'Market Produce Loading Dock', 'Puncture Repair'],
+  },
+  {
+    id: 'station-bamunanika-solar',
+    name: 'Bamunanika Community Solar Depot',
+    operatorName: 'Namatovu Grace',
+    operatorPhone: '+256 788 661 204',
+    locationName: 'Bamunanika Palace Trading Centre',
+    subCounty: 'Bamunanika',
+    lat: 0.7921,
+    lng: 32.6412,
+    totalBatteries: 12,
+    availableBatteries: 10,
+    chargingBatteries: 2,
+    batteryBrand: 'Bodawerk',
+    connectorType: 'Chogori Universal',
+    swapFeeUgx: 3500,
+    operatingHours: '07:00 AM - 08:00 PM',
+    powerSource: 'solar_only',
+    verified: true,
+    status: 'open',
+    rating: 4.9,
+    lastStockUpdate: new Date(Date.now() - 60 * 60000).toISOString(),
+    amenities: ['Pure Solar PV System', 'Emergency Battery Reserve for Clinic Ambulances'],
+  },
+];
+
+// Initial Boda Jobs & Delivery Opportunities
+export const INITIAL_JOBS: BodaJob[] = [
+  {
+    id: 'job-coffee-01',
+    employerId: 'user-employer-coop',
+    employerName: 'Nsubuga Henry',
+    employerPhone: '+256 782 550 918',
+    employerCompany: 'Kikyusa Coffee Growers Cooperative',
+    title: 'Daily Parchment Coffee Transport to Kasana Processing Mill',
+    type: 'produce_transport',
+    description: 'Transport 4 to 6 bags of dried parchment coffee from our Kikyusa collection centre to Kasana Mill. Requires a sturdy motorcycle carrier with weather-proof straps. Regular daily runs available through harvest season.',
+    pickupLocation: 'Kikyusa Cooperative Bulking Store, Block 4',
+    deliveryLocation: 'Kasana Quality Coffee Mill, Factory Gate',
+    subCounty: 'Kikyusa',
+    distanceKm: 15.2,
+    cargoWeightKg: 85,
+    cargoDescription: 'Export-grade dried parchment coffee bags',
+    paymentAmountUgx: 35000,
+    paymentFrequency: 'per_trip',
+    requiredMotorcycleType: 'any',
+    status: 'open',
+    postedDate: new Date(Date.now() - 3 * 3600000).toISOString().split('T')[0],
+    deadline: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+    applicationsCount: 4,
+    adminApproved: true,
+    village: 'Kikyusa Central',
+    requirements: 'Valid Class A driving permit, sturdy rear luggage carrier, tarpaulin straps.',
+    applicationInstructions: 'Apply in BodaCare app or call Nsubuga Henry on +256 782 550 918 with your Rider ID.',
+    verifiedBy: 'Brian Mukisa',
+    verifiedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+  },
+  {
+    id: 'job-pharma-02',
+    employerId: 'emp-medipharm',
+    employerName: 'Dr. Sarah Nalwanga',
+    employerPhone: '+256 774 201 983',
+    employerCompany: 'Medipharm Luweero District Depot',
+    title: 'Urgent Cold-Chain Vaccine & Antibiotic Clinic Dispatch',
+    type: 'scheduled_courier',
+    description: 'Delivering temperature-sensitive vaccine flasks and essential antibiotics to rural clinics in Kikyusa Health Centre IV and Bamunanika Sub-County Dispensary. Strict adherence to non-vibrating, smooth riding required.',
+    pickupLocation: 'Stanbic Bank Plaza 1st Floor, Luweero Town',
+    deliveryLocation: 'Kikyusa Health Centre IV Pharmacy',
+    subCounty: 'Luweero Town Council',
+    distanceKm: 22.4,
+    cargoWeightKg: 12,
+    cargoDescription: 'Insulated cooler flask containing routine childhood vaccines',
+    paymentAmountUgx: 45000,
+    paymentFrequency: 'per_trip',
+    requiredMotorcycleType: 'electric',
+    status: 'open',
+    postedDate: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0],
+    deadline: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
+    applicationsCount: 2,
+    adminApproved: true,
+  },
+  {
+    id: 'job-dairy-03',
+    employerId: 'emp-dairy-coop',
+    employerName: 'Mugisha Patrick',
+    employerPhone: '+256 752 443 219',
+    employerCompany: 'Luweero Fresh Dairy Association',
+    title: 'Daily Morning Milk Cans Run to Wobulenzi Cooler',
+    type: 'produce_transport',
+    description: 'Morning pickup of 2 x 50-litre milk cans from farmers along Zirobwe-Wobulenzi road into the main cooling tank. Daily contract at UGX 20,000 per morning (UGX 140,000 paid weekly via Mobile Money).',
+    pickupLocation: 'Kikyusa Farm Junction Boda Stage',
+    deliveryLocation: 'Wobulenzi Chilling Plant',
+    subCounty: 'Wobulenzi',
+    distanceKm: 11.0,
+    cargoWeightKg: 100,
+    cargoDescription: '2 aluminium dairy cans (raw whole milk)',
+    paymentAmountUgx: 20000,
+    paymentFrequency: 'daily',
+    requiredMotorcycleType: 'any',
+    status: 'open',
+    postedDate: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
+    deadline: new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0],
+    applicationsCount: 5,
+    adminApproved: true,
+  },
+  {
+    id: 'job-hardware-04',
+    employerId: 'emp-hardware-01',
+    employerName: 'Sserunjogi Daniel',
+    employerPhone: '+256 701 889 443',
+    employerCompany: 'Sserunjogi Hardware & Builders Store',
+    title: 'Heavy Fasteners & Paint Tins Delivery to School Construction Site',
+    type: 'parcel_delivery',
+    description: 'Dispatch 4 tins of weather-guard paint and 20kg structural bolts to the classroom construction site at Kikyusa High School.',
+    pickupLocation: 'Kikyusa Main Street Hardware',
+    deliveryLocation: 'Kikyusa High School Construction Site',
+    subCounty: 'Kikyusa',
+    distanceKm: 4.8,
+    cargoWeightKg: 60,
+    cargoDescription: 'Sadolin paint tins and galvanized steel bolts',
+    paymentAmountUgx: 25000,
+    paymentFrequency: 'one_time',
+    requiredMotorcycleType: 'any',
+    status: 'assigned',
+    postedDate: new Date().toISOString().split('T')[0],
+    deadline: new Date(Date.now() + 1 * 86400000).toISOString().split('T')[0],
+    applicationsCount: 3,
+    adminApproved: true,
+    assignedRiderId: 'rider-kato-moses',
+    assignedRiderName: 'Kato Moses (UFG 421K)',
+  },
+];
+
+// Initial Job Applications
+export const INITIAL_JOB_APPLICATIONS: JobApplication[] = [
+  {
+    id: 'app-01',
+    jobId: 'job-coffee-01',
+    jobTitle: 'Daily Parchment Coffee Transport to Kasana Processing Mill',
+    employerCompany: 'Kikyusa Coffee Growers Cooperative',
+    riderId: 'rider-kato-moses',
+    riderName: 'Kato Moses',
+    riderPhone: '+256 774 912 304',
+    riderIdNumber: 'BCU-LWR-0421',
+    bikeReg: 'UFG 421K (Electric Bodawerk)',
+    proposedRateUgx: 35000,
+    coverNote: 'I have a heavy-duty reinforced carrier and electric torque perfect for steep murram slopes with 90kg load. Stationed directly at Kikyusa Main Stage.',
+    appliedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+    status: 'pending',
+  },
+  {
+    id: 'app-02',
+    jobId: 'job-pharma-02',
+    jobTitle: 'Urgent Cold-Chain Vaccine & Antibiotic Clinic Dispatch',
+    employerCompany: 'Medipharm Luweero District Depot',
+    riderId: 'rider-kato-moses',
+    riderName: 'Kato Moses',
+    riderPhone: '+256 774 912 304',
+    riderIdNumber: 'BCU-LWR-0421',
+    bikeReg: 'UFG 421K',
+    proposedRateUgx: 45000,
+    coverNote: 'I operate an electric E-Boda with zero vibration, smooth regenerative braking, and 48V power outlet for digital cooler monitoring. Verified Grade A Permit.',
+    appliedAt: new Date(Date.now() - 5 * 3600000).toISOString(),
+    status: 'shortlisted',
+  },
+  {
+    id: 'app-03',
+    jobId: 'job-coffee-01',
+    jobTitle: 'Daily Parchment Coffee Transport to Kasana Processing Mill',
+    employerCompany: 'Kikyusa Coffee Growers Cooperative',
+    riderId: 'rider-ssempijja-ronald',
+    riderName: 'Ssempijja Ronald',
+    riderPhone: '+256 702 331 990',
+    riderIdNumber: 'BCU-LWR-0819',
+    bikeReg: 'UFA 819D (TVS HLX 125)',
+    proposedRateUgx: 34000,
+    coverNote: 'Know the Kikyusa-Kasana short-cut road well. Regular haulage experience.',
+    appliedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+    status: 'pending',
+  },
+];
+
+// Initial Repair Requests
+export const INITIAL_REPAIR_REQUESTS: RepairRequest[] = [
+  {
+    id: 'rep-01',
+    riderId: 'rider-kato-moses',
+    riderName: 'Kato Moses',
+    riderPhone: '+256 774 912 304',
+    motorcycleReg: 'UFG 421K',
+    motorcycleType: 'electric',
+    garageId: 'biz-01',
+    garageName: 'Makanika Ssekandi Precision Garage & Spares',
+    serviceType: 'Drive Chain Adjustment & Front Fork Bushing Replacement',
+    description: 'Chain slack causing slapping on swingarm; front fork making clicking noise on potholed murram sections.',
+    urgency: 'urgent',
+    location: 'Kikyusa Main Stage, 50m from garage',
+    status: 'completed',
+    estimatedCostUgx: 25000,
+    finalCostUgx: 23000,
+    createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+    completedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+    mechanicNotes: 'Fitted genuine heavy-gauge 428H roller chain. Fork seals lubricated.',
+  },
+  {
+    id: 'rep-02',
+    riderId: 'rider-mugwanya-isaac',
+    riderName: 'Mugwanya Isaac',
+    riderPhone: '+256 788 412 900',
+    motorcycleReg: 'UEX 902C',
+    motorcycleType: 'electric',
+    garageId: 'biz-01',
+    garageName: 'Makanika Ssekandi Precision Garage & Spares',
+    serviceType: 'Electric Motor Controller Inspection & Throttle Calibration',
+    description: 'Throttle response lagging when accelerating under heavy load; digital dash showing code E-04.',
+    urgency: 'routine',
+    location: 'Wobulenzi-Kikyusa Road',
+    status: 'in_repair',
+    estimatedCostUgx: 18000,
+    createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+    mechanicNotes: 'Hall sensor harness cleaned and re-seated. Diagnostic scan normal.',
+  },
+  {
+    id: 'rep-03',
+    riderId: 'rider-kigozi-gerald',
+    riderName: 'Kigozi Gerald',
+    riderPhone: '+256 756 123 889',
+    motorcycleReg: 'UFR 104M',
+    motorcycleType: 'petrol',
+    garageId: 'biz-02',
+    garageName: 'Kasana Modern Cycle Clinic',
+    serviceType: 'Roadside Breakdown: Rear Tyre Bead Puncture & Tube Replacement',
+    description: 'Stuck with flat tyre on muddy incline 2km outside Kikyusa towards Bamunanika.',
+    urgency: 'roadside_breakdown',
+    location: 'Kikyusa-Bamunanika Road, swamp bridge',
+    status: 'accepted',
+    estimatedCostUgx: 16000,
+    createdAt: new Date(Date.now() - 35 * 60000).toISOString(),
+    mechanicNotes: 'Dispatching apprentice on mobile unit with heavy-duty tube & foot pump.',
+  },
+];
+
+// Initial Service Records (Digital Logbook)
+export const INITIAL_SERVICE_RECORDS: ServiceRecord[] = [
+  {
+    id: 'srv-01',
+    riderId: 'rider-kato-moses',
+    motorcycleReg: 'UFG 421K',
+    serviceDate: '2026-10-22',
+    odometerKm: 18400,
+    servicePerformed: 'Bodawerk Hub Motor Service & 48V Battery Terminal De-oxidation',
+    partsReplaced: ['Terminal Copper Washers', 'High-Temp Hub Grease', 'Brake Pads (Front)'],
+    mechanicName: 'Makanika Ssekandi Fred',
+    garageName: 'Makanika Ssekandi Precision Garage',
+    costUgx: 32000,
+    nextServiceDueKm: 21400,
+    notes: 'Battery health test: 94% capacity retention. Excellent electric drive performance.',
+  },
+  {
+    id: 'srv-02',
+    riderId: 'rider-kato-moses',
+    motorcycleReg: 'UFG 421K',
+    serviceDate: '2026-08-15',
+    odometerKm: 15200,
+    servicePerformed: 'Rear Shock Absorber Bushings & Heavy Duty Carrier Welding',
+    partsReplaced: ['Rubber Bushings x 4', 'Reinforced Support Brackets'],
+    mechanicName: 'Makanika Ssekandi Fred',
+    garageName: 'Makanika Ssekandi Precision Garage',
+    costUgx: 28000,
+    nextServiceDueKm: 18400,
+  },
+  {
+    id: 'srv-03',
+    riderId: 'rider-ssempijja-ronald',
+    motorcycleReg: 'UFA 819D',
+    serviceDate: '2026-10-10',
+    odometerKm: 22100,
+    servicePerformed: 'Total 4T Special Engine Oil & Spark Plug Replacement',
+    partsReplaced: ['Total 4T 20W50 Oil 1L', 'NGK Spark Plug CPR8EA', 'Fuel Filter'],
+    mechanicName: 'Muwonge Charles',
+    garageName: 'Kasana Modern Cycle Clinic',
+    costUgx: 24000,
+    nextServiceDueKm: 23600,
+  },
+];
+
+// Initial External Services Configuration (Non-secret settings only; secret keys live strictly on server)
+export const DEFAULT_EXTERNAL_CONFIG: ExternalServicesConfig = {
+  smsProvider: 'africastalking',
+  smsSenderId: 'BODACARE',
+  whatsAppBusinessPhone: '+256 772 100 240',
+  autoDispatchEnabled: true,
+  updatedAt: new Date().toISOString(),
+};
+
+// Initial Complaints & Customer Support Reports
+export const INITIAL_COMPLAINTS: ComplaintReport[] = [
+  {
+    id: 'cmp-01',
+    userId: 'user-pass-prossy',
+    userName: 'Babirye Prossy',
+    userPhone: '+256 772 901 882',
+    userRole: 'passenger',
+    category: 'fare_dispute',
+    subject: 'Fare discrepancy on Kasana to Kikyusa trip',
+    description: 'System calculated UGX 7,000 based on standard distance, but the rider initially demanded UGX 10,000 due to wet road muddy conditions. Reconciled peacefully at stage.',
+    status: 'resolved',
+    submittedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+    resolvedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+    resolutionNotes: 'Stage Chairman Mugisha confirmed standard muddy weather tariff adjustment of UGX 1,500. Refund credited to customer wallet.',
+  },
+  {
+    id: 'cmp-02',
+    userId: 'user-kato-01',
+    userName: 'Kato Moses',
+    userPhone: '+256 774 912 304',
+    userRole: 'rider',
+    category: 'app_glitch',
+    subject: 'Offline sync indicator showed 2 pending records after reconnecting in Kikyusa',
+    description: 'During rural ride through Bamunanika murram, saved two trips in offline cache. On hitting 3G network in Kikyusa, required tapping Sync button twice.',
+    status: 'resolved',
+    submittedAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+    resolvedAt: new Date(Date.now() - 6 * 86400000).toISOString(),
+    resolutionNotes: 'Updated local cache queue sync retry logic in storage engine.',
+  },
+];
+
 
 // Helper to access LocalStorage safely with resilient in-memory fallback for Android WebViews & private browsing
 class BodaStorage {
@@ -1068,36 +1673,78 @@ class BodaStorage {
     }
   }
 
-  // Riders
+  // Riders (hydrate new alert preference fields seamlessly without duplicates)
   getRiders(): RiderProfile[] {
-    return this.get<RiderProfile[]>('riders', INITIAL_RIDERS);
+    const raw = this.get<RiderProfile[]>('riders', INITIAL_RIDERS);
+    return raw.map((r) => ({
+      ...r,
+      phoneType: r.phoneType || 'smartphone',
+      subCounty:
+        r.subCounty ||
+        (r.stageName?.toLowerCase().includes('kikyusa') || r.residentialArea?.toLowerCase().includes('kikyusa')
+          ? 'Kikyusa'
+          : r.stageName?.toLowerCase().includes('wobulenzi') || r.residentialArea?.toLowerCase().includes('wobulenzi')
+          ? 'Wobulenzi'
+          : 'Luweero Town Council'),
+      village: r.village || r.residentialArea?.split(',')[0] || 'Kikyusa Central',
+      jobAlertPreferences: r.jobAlertPreferences || {
+        enabled: true,
+        preferredChannel: r.phoneType === 'feature_phone' ? 'sms_only' : 'auto',
+        optedOutSms: false,
+        jobTypes: ['produce_transport', 'parcel_delivery', 'scheduled_courier', 'corporate_boda', 'passenger_contract'],
+        preferredSubCounties: ['Kikyusa', 'Luweero Town Council', 'Wobulenzi', 'Kasana'],
+        updatedAt: r.registrationDate || new Date().toISOString(),
+      },
+    }));
   }
 
   saveRider(rider: RiderProfile): void {
     const riders = this.getRiders();
-    const idx = riders.findIndex((r) => r.id === rider.id);
+    const cleanPhone = (rider.phone || '').replace(/\s+/g, '');
+    const idx = riders.findIndex(
+      (r) => r.id === rider.id || (cleanPhone && (r.phone || '').replace(/\s+/g, '') === cleanPhone)
+    );
     if (idx >= 0) {
-      riders[idx] = rider;
+      riders[idx] = { ...riders[idx], ...rider, id: riders[idx].id };
     } else {
       riders.unshift(rider);
     }
     this.set('riders', riders);
   }
 
-  updateRiderStatus(riderId: string, status: RiderProfile['verificationStatus']): void {
+  updateRiderStatus(riderId: string, status: RiderProfile['verificationStatus'], rejectionReason?: string): void {
     const riders = this.getRiders();
     const r = riders.find((x) => x.id === riderId);
     if (r) {
       r.verificationStatus = status;
+      if (rejectionReason) {
+        r.rejectionReason = rejectionReason;
+      }
       this.set('riders', riders);
       this.addAuditLog({
         id: `log-${Date.now()}`,
         timestamp: new Date().toISOString(),
-        actorName: 'Ronald Ssemakula (Platform Owner)',
+        actorName: 'Mukisa Brian (Founder & Super Admin)',
         actorRole: 'super_admin',
         action: `RIDER_STATUS_${status.toUpperCase()}`,
         target: `${r.fullName} (${r.motorcycleReg})`,
-        details: `Updated verification status to ${status}.`,
+        details: rejectionReason
+          ? `Status changed to ${status}. Reason: ${rejectionReason}`
+          : `Updated verification status to ${status}.`,
+      });
+
+      // Send in-app notification to the rider
+      this.addNotification({
+        id: `notif-${Date.now()}`,
+        title: status === 'verified' ? 'Account Verified!' : 'KYC Verification Update',
+        message:
+          status === 'verified'
+            ? `Congratulations! Your BodaCare badge (${r.riderIdNumber || 'BCU-LWR'}) has been officially verified by Founder Mukisa Brian.`
+            : `Your application status is now ${status}. ${rejectionReason ? `Note: ${rejectionReason}` : ''}`,
+        type: 'system',
+        timestamp: new Date().toISOString(),
+        read: false,
+        actionUrl: 'rider',
       });
     }
   }
@@ -1604,7 +2251,863 @@ class BodaStorage {
 
     return { success: true };
   }
+
+  // ==========================================
+  // MODULE 2: JOBS & DELIVERY OPPORTUNITIES
+  // ==========================================
+  getJobs(): BodaJob[] {
+    return this.get<BodaJob[]>('jobs', INITIAL_JOBS);
+  }
+
+  saveJob(job: BodaJob): void {
+    const list = this.getJobs();
+    const idx = list.findIndex((j) => j.id === job.id);
+    if (idx >= 0) {
+      list[idx] = job;
+    } else {
+      list.unshift(job);
+    }
+    this.set('jobs', list);
+  }
+
+  updateJobStatus(id: string, status: BodaJob['status'], assignedRiderId?: string, assignedRiderName?: string): void {
+    const list = this.getJobs();
+    const job = list.find((j) => j.id === id);
+    if (job) {
+      job.status = status;
+      if (assignedRiderId) job.assignedRiderId = assignedRiderId;
+      if (assignedRiderName) job.assignedRiderName = assignedRiderName;
+      this.set('jobs', list);
+    }
+  }
+
+  deleteJob(id: string): void {
+    const list = this.getJobs().filter((j) => j.id !== id);
+    this.set('jobs', list);
+  }
+
+  getJobApplications(jobId?: string): JobApplication[] {
+    const all = this.get<JobApplication[]>('job_applications', INITIAL_JOB_APPLICATIONS);
+    if (jobId) return all.filter((a) => a.jobId === jobId);
+    return all;
+  }
+
+  applyToJob(app: JobApplication): { success: boolean; message: string } {
+    const list = this.getJobApplications();
+    const already = list.find((a) => a.jobId === app.jobId && a.riderId === app.riderId);
+    if (already) {
+      return { success: false, message: 'You have already submitted a proposal for this job.' };
+    }
+    list.unshift(app);
+    this.set('job_applications', list);
+
+    // Increment count on job
+    const jobs = this.getJobs();
+    const j = jobs.find((x) => x.id === app.jobId);
+    if (j) {
+      j.applicationsCount = (j.applicationsCount || 0) + 1;
+      this.set('jobs', jobs);
+    }
+
+    // Add in-app notification
+    this.addNotification({
+      id: `notif-${Date.now()}`,
+      userId: app.riderId,
+      title: 'Application Submitted',
+      message: `Your proposal for "${app.jobTitle}" was submitted to ${app.employerCompany}.`,
+      timestamp: new Date().toISOString(),
+      read: false,
+      type: 'booking',
+    });
+
+    return { success: true, message: 'Proposal submitted successfully!' };
+  }
+
+  updateApplicationStatus(id: string, status: JobApplication['status']): void {
+    const list = this.getJobApplications();
+    const app = list.find((a) => a.id === id);
+    if (app) {
+      app.status = status;
+      this.set('job_applications', list);
+
+      if (status === 'accepted') {
+        this.updateJobStatus(app.jobId, 'assigned', app.riderId, app.riderName);
+        this.addNotification({
+          id: `notif-${Date.now()}`,
+          userId: app.riderId,
+          title: 'Proposal Accepted!',
+          message: `Congratulations! ${app.employerCompany} accepted your bid for "${app.jobTitle}".`,
+          timestamp: new Date().toISOString(),
+          read: false,
+          type: 'booking',
+        });
+      }
+    }
+  }
+
+  // ==========================================
+  // MODULE 3: BATTERY SWAP LOCATOR (E-BODA)
+  // ==========================================
+  getSwapStations(): BatterySwapStation[] {
+    return this.get<BatterySwapStation[]>('swap_stations', INITIAL_SWAP_STATIONS);
+  }
+
+  saveSwapStation(station: BatterySwapStation): void {
+    const list = this.getSwapStations();
+    const idx = list.findIndex((s) => s.id === station.id);
+    if (idx >= 0) {
+      list[idx] = station;
+    } else {
+      list.push(station);
+    }
+    this.set('swap_stations', list);
+  }
+
+  updateStationInventory(id: string, available: number, charging: number): void {
+    const list = this.getSwapStations();
+    const s = list.find((x) => x.id === id);
+    if (s) {
+      s.availableBatteries = available;
+      s.chargingBatteries = charging;
+      s.totalBatteries = available + charging;
+      s.lastStockUpdate = new Date().toISOString();
+      if (available === 0) s.status = 'out_of_batteries';
+      else if (available <= 3) s.status = 'congested';
+      else s.status = 'open';
+      this.set('swap_stations', list);
+    }
+  }
+
+  verifyStation(id: string, verified: boolean): void {
+    const list = this.getSwapStations();
+    const s = list.find((x) => x.id === id);
+    if (s) {
+      s.verified = verified;
+      this.set('swap_stations', list);
+    }
+  }
+
+  getStationProblems(): StationProblemReport[] {
+    return this.get<StationProblemReport[]>('station_problems', [
+      {
+        id: 'prob-01',
+        stationId: 'station-kasana-market',
+        stationName: 'Kasana Market Green Energy Swap Hub',
+        reportedByRiderId: 'rider-kato-moses',
+        riderName: 'Kato Moses',
+        riderPhone: '+256 774 912 304',
+        issueType: 'no_batteries',
+        description: 'Only 1 charged battery remaining at peak 5 PM market loading rush. Lines forming.',
+        timestamp: new Date(Date.now() - 35 * 60000).toISOString(),
+        status: 'investigating',
+        adminNotes: 'Station operator Opio contacted. Dispatching 6 charged reserve packs from Kikyusa hub.',
+      },
+    ]);
+  }
+
+  reportStationProblem(report: StationProblemReport): void {
+    const list = this.getStationProblems();
+    list.unshift(report);
+    this.set('station_problems', list);
+
+    this.addAuditLog({
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      actorName: report.riderName,
+      actorRole: 'rider',
+      action: 'STATION_PROBLEM_REPORTED',
+      target: report.stationName,
+      details: `${report.issueType}: ${report.description}`,
+    });
+  }
+
+  resolveStationProblem(id: string, notes: string): void {
+    const list = this.getStationProblems();
+    const p = list.find((x) => x.id === id);
+    if (p) {
+      p.status = 'resolved';
+      p.adminNotes = notes;
+      this.set('station_problems', list);
+    }
+  }
+
+  // ==========================================
+  // MODULE 4: REPAIRS AND MAINTENANCE
+  // ==========================================
+  getRepairRequests(riderId?: string): RepairRequest[] {
+    const all = this.get<RepairRequest[]>('repair_requests', INITIAL_REPAIR_REQUESTS);
+    if (riderId) return all.filter((r) => r.riderId === riderId);
+    return all;
+  }
+
+  createRepairRequest(req: RepairRequest): void {
+    const list = this.getRepairRequests();
+    list.unshift(req);
+    this.set('repair_requests', list);
+
+    this.addNotification({
+      id: `notif-${Date.now()}`,
+      userId: req.riderId,
+      title: 'Service Request Sent',
+      message: `Your repair order for "${req.serviceType}" was sent to ${req.garageName}.`,
+      timestamp: new Date().toISOString(),
+      read: false,
+      type: 'booking',
+    });
+  }
+
+  updateRepairRequestStatus(id: string, status: RepairRequest['status'], cost?: number, notes?: string): void {
+    const list = this.getRepairRequests();
+    const req = list.find((r) => r.id === id);
+    if (req) {
+      req.status = status;
+      if (cost !== undefined) req.finalCostUgx = cost;
+      if (notes) req.mechanicNotes = notes;
+      if (status === 'completed') req.completedAt = new Date().toISOString();
+      this.set('repair_requests', list);
+    }
+  }
+
+  getServiceRecords(riderId?: string): ServiceRecord[] {
+    const all = this.get<ServiceRecord[]>('service_records', INITIAL_SERVICE_RECORDS);
+    if (riderId) return all.filter((s) => s.riderId === riderId);
+    return all;
+  }
+
+  addServiceRecord(record: ServiceRecord): void {
+    const list = this.getServiceRecords();
+    list.unshift(record);
+    this.set('service_records', list);
+  }
+
+  // ==========================================
+  // MODULE 6: RIDER WALLET & TRANSACTIONS
+  // ==========================================
+  getRiderWallet(riderId: string): RiderWallet {
+    const riders = this.getRiders();
+    const rider = riders.find((r) => r.id === riderId);
+    const balance = rider ? (rider.walletBalanceUgx || 0) : 0;
+    
+    // Compute total earnings and expenditures from transactions
+    const txs = this.getWalletTransactions(riderId);
+    const earned = txs.filter((t) => t.type === 'credit').reduce((sum, t) => sum + t.amountUgx, 0);
+    const spent = txs.filter((t) => t.type === 'debit').reduce((sum, t) => sum + t.amountUgx, 0);
+
+    return {
+      riderId,
+      availableBalanceUgx: balance,
+      totalEarnedUgx: Math.max(earned, 250000),
+      totalSpentUgx: Math.max(spent, 60000),
+      pendingWithdrawalUgx: 0,
+      lastUpdated: new Date().toISOString(),
+    };
+  }
+
+  getWalletTransactions(riderId: string): WalletTransaction[] {
+    const all = this.get<WalletTransaction[]>('wallet_transactions', [
+      {
+        id: 'wtx-01',
+        riderId: 'rider-kato-moses',
+        type: 'credit',
+        category: 'job_payout',
+        amountUgx: 35000,
+        balanceAfterUgx: 65000,
+        description: 'Payment for Coffee Transport: Kikyusa to Kasana Mill',
+        timestamp: new Date(Date.now() - 6 * 3600000).toISOString(),
+        reference: 'BCU-JOB-PAY-7721',
+        status: 'completed',
+      },
+      {
+        id: 'wtx-02',
+        riderId: 'rider-kato-moses',
+        type: 'debit',
+        category: 'battery_swap',
+        amountUgx: 3500,
+        balanceAfterUgx: 30000,
+        description: 'E-Boda 48V Battery Swap at Kikyusa Bodawerk Hub',
+        timestamp: new Date(Date.now() - 14 * 3600000).toISOString(),
+        reference: 'BCU-SWAP-0912',
+        status: 'completed',
+      },
+      {
+        id: 'wtx-03',
+        riderId: 'rider-kato-moses',
+        type: 'credit',
+        category: 'ride_fare',
+        amountUgx: 15000,
+        balanceAfterUgx: 33500,
+        description: 'Passenger Trip: Kikyusa to Wobulenzi Town',
+        timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
+        reference: 'BCU-RIDE-4412',
+        status: 'completed',
+      },
+    ]);
+    return all.filter((t) => t.riderId === riderId);
+  }
+
+  depositToWallet(riderId: string, amountUgx: number, network: 'MTN' | 'Airtel', txId: string): { success: boolean; message: string; balance: number } {
+    if (amountUgx <= 0) return { success: false, message: 'Invalid deposit amount.', balance: 0 };
+    const normId = normalizeTransactionId(txId);
+    if (!normId) return { success: false, message: 'Transaction ID is required.', balance: 0 };
+
+    // Prevent duplicate transaction ID across payments and wallet
+    if (this.isTransactionIdUsed(normId)) {
+      return { success: false, message: 'This transaction ID has already been used. Please submit a valid transaction ID.', balance: 0 };
+    }
+
+    const riders = this.getRiders();
+    const r = riders.find((x) => x.id === riderId);
+    if (!r) return { success: false, message: 'Rider not found.', balance: 0 };
+
+    const newBalance = (r.walletBalanceUgx || 0) + amountUgx;
+    r.walletBalanceUgx = newBalance;
+    this.saveRider(r);
+
+    // Save transaction
+    const all = this.get<WalletTransaction[]>('wallet_transactions', []);
+    const wtx: WalletTransaction = {
+      id: `wtx-${Date.now()}`,
+      riderId,
+      type: 'credit',
+      category: 'topup',
+      amountUgx,
+      balanceAfterUgx: newBalance,
+      description: `Mobile Money Top-up via ${network} (${normId})`,
+      timestamp: new Date().toISOString(),
+      reference: `BODACARE-TOPUP-${normId.slice(-6)}`,
+      status: 'completed',
+    };
+    all.unshift(wtx);
+    this.set('wallet_transactions', all);
+
+    return { success: true, message: `Successfully topped up UGX ${amountUgx.toLocaleString()} via ${network}!`, balance: newBalance };
+  }
+
+  deductWallet(riderId: string, amountUgx: number, category: WalletTransaction['category'], description: string): { success: boolean; message: string; balance: number } {
+    const riders = this.getRiders();
+    const r = riders.find((x) => x.id === riderId);
+    if (!r) return { success: false, message: 'Rider not found.', balance: 0 };
+
+    const currentBal = r.walletBalanceUgx || 0;
+    if (currentBal < amountUgx) {
+      return { success: false, message: `Insufficient wallet balance (UGX ${currentBal.toLocaleString()}). Please top up via MTN or Airtel.`, balance: currentBal };
+    }
+
+    const newBalance = currentBal - amountUgx;
+    r.walletBalanceUgx = newBalance;
+    this.saveRider(r);
+
+    const all = this.get<WalletTransaction[]>('wallet_transactions', []);
+    const wtx: WalletTransaction = {
+      id: `wtx-${Date.now()}`,
+      riderId,
+      type: 'debit',
+      category,
+      amountUgx,
+      balanceAfterUgx: newBalance,
+      description,
+      timestamp: new Date().toISOString(),
+      reference: `BODACARE-DED-${Date.now().toString().slice(-6)}`,
+      status: 'completed',
+    };
+    all.unshift(wtx);
+    this.set('wallet_transactions', all);
+
+    return { success: true, message: `Paid UGX ${amountUgx.toLocaleString()} from wallet balance.`, balance: newBalance };
+  }
+
+  // ==========================================
+  // EXTERNAL SERVICES CONFIGURATION
+  // ==========================================
+  getExternalConfig(): ExternalServicesConfig {
+    return this.get<ExternalServicesConfig>('external_config', DEFAULT_EXTERNAL_CONFIG);
+  }
+
+  saveExternalConfig(cfg: ExternalServicesConfig): void {
+    cfg.updatedAt = new Date().toISOString();
+    this.set('external_config', cfg);
+    this.addAuditLog({
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      actorName: 'Mukisa Brian (Founder)',
+      actorRole: 'super_admin',
+      action: 'UPDATED_EXTERNAL_SERVICES_CONFIG',
+      target: `SMS: ${cfg.smsProvider}, Sender: ${cfg.smsSenderId}`,
+      details: 'Updated gateway credentials and automated dispatch parameters.',
+    });
+  }
+
+  // ==========================================
+  // COMPLAINTS & SUPPORT TICKETS
+  // ==========================================
+  getComplaints(): ComplaintReport[] {
+    return this.get<ComplaintReport[]>('complaints', INITIAL_COMPLAINTS);
+  }
+
+  submitComplaint(report: ComplaintReport): void {
+    const list = this.getComplaints();
+    list.unshift(report);
+    this.set('complaints', list);
+
+    this.addNotification({
+      id: `notif-${Date.now()}`,
+      userId: report.userId,
+      title: 'Support Ticket Received',
+      message: `Your complaint "${report.subject}" was logged. Reference #${report.id}.`,
+      timestamp: new Date().toISOString(),
+      read: false,
+      type: 'system',
+    });
+  }
+
+  resolveComplaint(id: string, resolutionNotes: string): void {
+    const list = this.getComplaints();
+    const c = list.find((x) => x.id === id);
+    if (c) {
+      c.status = 'resolved';
+      c.resolvedAt = new Date().toISOString();
+      c.resolutionNotes = resolutionNotes;
+      this.set('complaints', list);
+    }
+  }
+
+  // ==========================================
+  // IN-APP NOTIFICATIONS
+  // ==========================================
+  getNotifications(userId?: string): AppNotification[] {
+    const all = this.get<AppNotification[]>('notifications', [
+      {
+        id: 'notif-init-01',
+        userId: 'rider-kato-moses',
+        title: 'New Boda Job in Kikyusa',
+        message: 'Kikyusa Coffee Growers Coop posted a daily coffee haulage run paying UGX 35,000.',
+        timestamp: new Date(Date.now() - 2 * 3600000).toISOString(),
+        read: false,
+        type: 'booking',
+      },
+      {
+        id: 'notif-init-02',
+        userId: 'rider-kato-moses',
+        title: 'Battery Stock Alert',
+        message: '14 charged batteries ready at Kikyusa Bodawerk E-Hub.',
+        timestamp: new Date(Date.now() - 4 * 3600000).toISOString(),
+        read: true,
+        type: 'system',
+      },
+      {
+        id: 'notif-init-03',
+        userId: 'user-founder-01',
+        title: 'Mobile Money Payment Received',
+        message: 'New subscription verification submission from Kato Moses (UGX 10,000).',
+        timestamp: new Date(Date.now() - 5 * 3600000).toISOString(),
+        read: false,
+        type: 'payment',
+      },
+    ]);
+    if (userId) return all.filter((n) => n.userId === userId || n.userId === 'all');
+    return all;
+  }
+
+  addNotification(notif: AppNotification): void {
+    const list = this.getNotifications();
+    list.unshift(notif);
+    this.set('notifications', list);
+  }
+
+  markNotificationRead(id: string): void {
+    const list = this.getNotifications();
+    const item = list.find((n) => n.id === id);
+    if (item) {
+      item.read = true;
+      this.set('notifications', list);
+    }
+  }
+
+  markAllNotificationsRead(userId?: string): void {
+    const list = this.getNotifications();
+    list.forEach((n) => {
+      if (!userId || n.userId === userId || n.userId === 'all') {
+        n.read = true;
+      }
+    });
+    this.set('notifications', list);
+  }
+
+  getMechanics() {
+    return this.getBusinesses();
+  }
+
+  safeCopyToClipboard(text: string): boolean {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+        return true;
+      }
+    } catch {
+      // fallback
+    }
+    return false;
+  }
+
+  checkDuplicateTxId(rawId: string): boolean {
+    const clean = rawId.trim().toUpperCase();
+    if (!clean) return false;
+    const subs = this.getPaymentSubmissions();
+    const txs = this.getTransactions();
+    const existsInSubs = subs.some(
+      (s) => s.transactionId && s.transactionId.trim().toUpperCase() === clean
+    );
+    const existsInTxs = txs.some(
+      (t) => t.reference && t.reference.trim().toUpperCase() === clean
+    );
+    return existsInSubs || existsInTxs;
+  }
+
+  // ==========================================
+  // JOB ALERT & BULK SMS EMPLOYMENT SYSTEM
+  // ==========================================
+  verifyJob(jobId: string, verified: boolean, adminName = 'Brian Mukisa (Super Admin)'): BodaJob | null {
+    const list = this.getJobs();
+    const job = list.find((j) => j.id === jobId);
+    if (!job) return null;
+    job.adminApproved = verified;
+    job.verifiedBy = verified ? adminName : undefined;
+    job.verifiedAt = verified ? new Date().toISOString() : undefined;
+    this.set('jobs', list);
+    this.addAuditLog({
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      actorName: adminName,
+      actorRole: 'super_admin',
+      action: verified ? 'JOB_VERIFIED_FOR_ALERTS' : 'JOB_UNVERIFIED',
+      target: `${job.title} (${job.employerCompany})`,
+      details: verified
+        ? 'Verified employer & job details prior to publishing and bulk rider alert.'
+        : 'Marked job unverified for review.',
+    });
+    return job;
+  }
+
+  updateRiderJobPreferences(
+    riderId: string,
+    prefs: Partial<RiderJobAlertPreferences>,
+    phoneType?: 'smartphone' | 'feature_phone',
+    updatedBy = 'Rider Self-Service'
+  ): RiderProfile | null {
+    const riders = this.getRiders();
+    const idx = riders.findIndex((r) => r.id === riderId);
+    if (idx < 0) return null;
+
+    const current = riders[idx];
+    const currentPrefs = current.jobAlertPreferences || {
+      enabled: true,
+      preferredChannel: 'auto',
+      optedOutSms: false,
+      jobTypes: ['produce_transport', 'parcel_delivery', 'scheduled_courier', 'corporate_boda', 'passenger_contract'],
+      preferredSubCounties: ['Kikyusa', 'Luweero Town Council', 'Wobulenzi', 'Kasana'],
+      updatedAt: new Date().toISOString(),
+    };
+
+    const nextPrefs: RiderJobAlertPreferences = {
+      ...currentPrefs,
+      ...prefs,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (prefs.optedOutSms === true && !currentPrefs.optedOutSms) {
+      nextPrefs.optedOutAt = new Date().toISOString();
+    } else if (prefs.optedOutSms === false) {
+      nextPrefs.optedOutAt = undefined;
+      nextPrefs.optOutReason = undefined;
+    }
+
+    riders[idx] = {
+      ...current,
+      phoneType: phoneType ?? current.phoneType ?? 'smartphone',
+      jobAlertPreferences: nextPrefs,
+    };
+    this.set('riders', riders);
+
+    this.addAuditLog({
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      actorName: updatedBy,
+      actorRole: updatedBy.toLowerCase().includes('admin') ? 'super_admin' : 'rider',
+      action: 'UPDATED_JOB_ALERT_PREFERENCES',
+      target: `${current.fullName} (${current.phone})`,
+      details: `PhoneType: ${riders[idx].phoneType}, SMS Opt-Out: ${nextPrefs.optedOutSms}, Job Types: ${nextPrefs.jobTypes.length}`,
+    });
+
+    return riders[idx];
+  }
+
+  getSmsCampaigns(): SmsCampaignRecord[] {
+    return this.get<SmsCampaignRecord[]>('sms_campaigns', []);
+  }
+
+  saveSmsCampaign(campaign: SmsCampaignRecord): void {
+    const list = this.getSmsCampaigns();
+    const idx = list.findIndex((c) => c.id === campaign.id);
+    if (idx >= 0) {
+      list[idx] = campaign;
+    } else {
+      list.unshift(campaign);
+    }
+    this.set('sms_campaigns', list);
+
+    // Update last alert timestamp on the job
+    const jobs = this.getJobs();
+    const job = jobs.find((j) => j.id === campaign.jobId);
+    if (job) {
+      job.lastAlertSentAt = campaign.sentAt;
+      job.notificationMode = campaign.dispatchMode;
+      this.set('jobs', jobs);
+    }
+
+    // Log immutable audit entry
+    this.addAuditLog({
+      id: `log-${Date.now()}`,
+      timestamp: campaign.sentAt,
+      actorName: campaign.sentByAdminName,
+      actorRole: 'super_admin',
+      action: 'JOB_ALERT_CAMPAIGN_RECORDED',
+      target: `${campaign.jobTitle} (${campaign.totalTargetedRiders} riders)`,
+      details: `Mode: ${campaign.dispatchMode}, Scope: ${campaign.scopeDetails}. App Alerts: ${campaign.appNotificationsSentCount}, SMS Sent: ${campaign.smsSentCount}, Failed/Blocked: ${campaign.smsFailedCount}, Expenditure: UGX ${campaign.actualExpenditureUgx.toLocaleString()}.`,
+    });
+  }
+
+  dispatchInAppJobNotifications(job: BodaJob, riderIds: string[], dispatchMode: JobAlertDispatchMode): number {
+    if (dispatchMode !== 'app_only' && dispatchMode !== 'both') return 0;
+    const riders = this.getRiders();
+    let count = 0;
+
+    for (const rid of riderIds) {
+      const r = riders.find((x) => x.id === rid);
+      if (!r) continue;
+      const isSmartphone = (r.phoneType || 'smartphone') === 'smartphone';
+      const acceptsApp =
+        isSmartphone &&
+        (r.jobAlertPreferences?.enabled ?? true) &&
+        r.jobAlertPreferences?.preferredChannel !== 'sms_only';
+
+      if (acceptsApp) {
+        this.addNotification({
+          id: `notif-job-${job.id}-${r.id}-${Date.now()}`,
+          userId: r.id,
+          title: `New Job Alert: ${job.title}`,
+          message: `${job.employerCompany} (${job.village ? `${job.village}, ` : ''}${job.subCounty}) — Pay: ${
+            job.salaryDisplay || `UGX ${job.paymentAmountUgx.toLocaleString()}`
+          }. Deadline: ${job.deadline}. Contact: ${job.employerPhone}.`,
+          timestamp: new Date().toISOString(),
+          read: false,
+          type: 'job',
+          actionUrl: 'jobs',
+        });
+        count++;
+      }
+    }
+    return count;
+  }
+
+  // ==========================================
+  // CENTRAL SQLITE-TO-CLIENT CACHE SYNC HELPERS
+  // ==========================================
+  getPassengers(): PassengerProfile[] {
+    return this.get<PassengerProfile[]>('passengers', INITIAL_PASSENGERS);
+  }
+
+  setRidersCache(riders: RiderProfile[]): void {
+    this.set('riders', riders);
+  }
+
+  setPassengersCache(passengers: PassengerProfile[]): void {
+    this.set('passengers', passengers);
+  }
+
+  setStagesCache(stages: Stage[]): void {
+    this.set('stages', stages);
+  }
+
+  setSwapStationsCache(stations: BatterySwapStation[]): void {
+    this.set('swap_stations', stations);
+  }
+
+  setBusinessesCache(centres: BusinessListing[]): void {
+    this.set('businesses', centres);
+  }
+
+  setJobsCache(jobs: BodaJob[]): void {
+    this.set('jobs', jobs);
+  }
+
+  validateSafeImageUrl(raw?: string): { valid: boolean; cleanUrl: string; error?: string } {
+    const trimmed = (raw || '').trim();
+    if (!trimmed) return { valid: true, cleanUrl: '' };
+    if (trimmed.length > 750000) {
+      return { valid: false, cleanUrl: '', error: 'Image size must be under 500 KB.' };
+    }
+    if (/^https?:\/\/\S+$/i.test(trimmed)) {
+      return { valid: true, cleanUrl: trimmed };
+    }
+    if (/^data:image\/(png|jpeg|jpg|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(trimmed)) {
+      return { valid: true, cleanUrl: trimmed };
+    }
+    return {
+      valid: false,
+      cleanUrl: '',
+      error: 'Only HTTPS/HTTP image links or PNG, JPG, WEBP, GIF uploads are supported.',
+    };
+  }
+
+  applyClientMembershipReset(options?: { includeJobs?: boolean; categories?: string[] }): void {
+    const categories = options?.categories;
+    if (categories && categories.length > 0) {
+      const catSet = new Set(categories);
+      if (catSet.has('riders')) {
+        this.set('riders', []);
+        this.set('job_applications', []);
+        this.set('bookings', []);
+        this.set('repair_requests', []);
+        this.set('service_records', []);
+        this.set('stage_attendance', []);
+      }
+      if (catSet.has('passengers')) {
+        this.set('passengers', []);
+        this.set('bookings', []);
+      }
+      if (catSet.has('stages')) {
+        this.set('stages', []);
+        this.set('stage_attendance', []);
+        this.set('announcements', []);
+      }
+      if (catSet.has('swap_stations')) {
+        this.set('swap_stations', []);
+        this.set('station_problems', []);
+      }
+      if (catSet.has('maintenance_centres')) {
+        this.set('businesses', []);
+      }
+      if (catSet.has('jobs')) {
+        this.set('jobs', []);
+        this.set('sms_campaigns', []);
+      }
+      if (catSet.has('riders') || catSet.has('passengers') || catSet.has('non_super_admins')) {
+        const existingUsers = this.getUsers();
+        const superAdminUsers = existingUsers.filter(
+          (u) => u.role === 'super_admin' || u.id === 'user-founder-01'
+        );
+        this.set('users', superAdminUsers.length > 0 ? superAdminUsers : [INITIAL_USERS[0]]);
+        const curUser = this.get<User | null>('current_user', null);
+        if (curUser && curUser.role !== 'super_admin') {
+          this.setCurrentUser(null);
+        }
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('bodacare:directory-updated'));
+      }
+      return;
+    }
+
+    const includeJobs = options?.includeJobs !== false;
+    this.set('riders', []);
+    this.set('passengers', []);
+    this.set('stages', []);
+    this.set('swap_stations', []);
+    this.set('businesses', []);
+    this.set('job_applications', []);
+    this.set('bookings', []);
+    this.set('repair_requests', []);
+    this.set('service_records', []);
+    this.set('station_problems', []);
+    this.set('invitations', []);
+    this.set('stage_attendance', []);
+    this.set('announcements', []);
+
+    if (includeJobs) {
+      this.set('jobs', []);
+      this.set('sms_campaigns', []);
+    }
+
+    // Preserve ONLY Super Admin user, financial transactions, payment submissions, and audit logs
+    const existingUsers = this.getUsers();
+    const superAdminUsers = existingUsers.filter(
+      (u) => u.role === 'super_admin' || u.id === 'user-founder-01'
+    );
+    this.set('users', superAdminUsers.length > 0 ? superAdminUsers : [INITIAL_USERS[0]]);
+
+    const notifs = this.getNotifications();
+    this.set(
+      'notifications',
+      notifs.filter((n) => n.userId === 'user-founder-01' || n.userId === 'admin-founder-mukisa')
+    );
+
+    const curUser = this.get<User | null>('current_user', null);
+    if (curUser && curUser.role !== 'super_admin') {
+      this.setCurrentUser(null);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bodacare:directory-updated'));
+    }
+  }
+
+  getLastSyncedAt(): string | null {
+    return this.get<string | null>('last_synced_at', null);
+  }
+
+  async syncDirectoryFromServer(): Promise<{ synced: boolean; resetAt: string | null; syncedAt?: string }> {
+    try {
+      const resp = await fetch('/api/public/directory', { cache: 'no-store' });
+      if (!resp.ok) return { synced: false, resetAt: null };
+      const data = (await resp.json()) as {
+        riders?: RiderProfile[];
+        passengers?: PassengerProfile[];
+        stages?: Stage[];
+        stations?: BatterySwapStation[];
+        centres?: BusinessListing[];
+        jobs?: BodaJob[];
+        resetAt?: string | null;
+      };
+
+      if (Array.isArray(data.riders)) this.setRidersCache(data.riders);
+      if (Array.isArray(data.passengers)) this.setPassengersCache(data.passengers);
+      if (Array.isArray(data.stages)) this.setStagesCache(data.stages);
+      if (Array.isArray(data.stations)) this.setSwapStationsCache(data.stations);
+      if (Array.isArray(data.centres)) this.setBusinessesCache(data.centres);
+      if (Array.isArray(data.jobs)) this.setJobsCache(data.jobs);
+
+      const syncedAt = new Date().toISOString();
+      this.set('last_synced_at', syncedAt);
+
+      // Verify current non-super-admin session wasn't deleted or revoked
+      const curUser = this.get<User | null>('current_user', null);
+      if (curUser && curUser.role !== 'super_admin') {
+        const params = new URLSearchParams({
+          id: curUser.id || '',
+          phone: curUser.phone || '',
+          email: curUser.email || '',
+          role: curUser.role || '',
+        });
+        const verifyResp = await fetch(`/api/auth/session-verify?${params.toString()}`, { cache: 'no-store' }).catch(() => null);
+        if (verifyResp && verifyResp.ok) {
+          const verifyJson = (await verifyResp.json()) as { valid?: boolean; revoked?: boolean };
+          if (verifyJson.revoked || verifyJson.valid === false) {
+            this.setCurrentUser(null);
+          }
+        }
+      }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('bodacare:directory-updated'));
+      }
+      return { synced: true, resetAt: data.resetAt || null, syncedAt };
+    } catch {
+      return { synced: false, resetAt: null };
+    }
+  }
 }
 
 export const storage = new BodaStorage();
+
+
 

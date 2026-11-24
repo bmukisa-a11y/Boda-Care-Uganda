@@ -19,13 +19,21 @@ import {
 import { Booking, RiderProfile } from '../../types';
 import { storage, safeCopyToClipboard } from '../../lib/storage';
 import { formatUgx, translations, Language } from '../../lib/i18n';
+import { OfflineFreshnessBanner } from '../common/OfflineFreshnessBanner';
 
 interface PassengerAppProps {
   lang: Language;
   onOpenSOS: () => void;
+  isOffline?: boolean;
+  lastSyncedAt?: string | null;
 }
 
-export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) => {
+export const PassengerApp: React.FC<PassengerAppProps> = ({
+  lang,
+  onOpenSOS,
+  isOffline = false,
+  lastSyncedAt = null,
+}) => {
   const t = translations[lang];
 
   // Active bookings list
@@ -47,8 +55,11 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
   const [recipientPhone, setRecipientPhone] = useState('');
   const [parcelDesc, setParcelDesc] = useState('');
 
+  const [activePassenger] = useState(() => storage.getPassengers()[0] || null);
+
   // Selected Rider
-  const [selectedRiderId, setSelectedRiderId] = useState<string>('rider-kato-moses');
+  const [selectedRiderId, setSelectedRiderId] = useState<string>(() => verifiedRiders[0]?.id || '');
+  const [bookingError, setBookingError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeBooking, setActiveBooking] = useState<Booking | null>(() => {
     return bookings.find((b) => b.status === 'in_progress' || b.status === 'accepted' || b.status === 'arriving') || null;
@@ -64,17 +75,26 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
 
   const handleCreateBooking = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setBookingError(null);
 
     const assignedRider = verifiedRiders.find((r) => r.id === selectedRiderId) || verifiedRiders[0];
+    if (!assignedRider) {
+      setBookingError('No verified boda riders are currently registered. Please try again after riders are added by Admin.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const paxId = activePassenger?.id || 'pass-guest-01';
+    const paxName = activePassenger?.fullName || 'Guest Passenger';
+    const paxPhone = activePassenger?.phone || '+256 700 000 000';
 
     setTimeout(() => {
       const newBooking: Booking = {
         id: `bk-${Date.now().toString().slice(-6)}`,
         type: bookingType,
-        passengerId: 'pass-prossy-01',
-        passengerName: 'Babirye Prossy',
-        passengerPhone: '+256 772 901 882',
+        passengerId: paxId,
+        passengerName: paxName,
+        passengerPhone: paxPhone,
         riderId: assignedRider.id,
         riderName: assignedRider.fullName,
         riderPhone: assignedRider.phone,
@@ -88,8 +108,8 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
         deliveryDetails:
           bookingType === 'delivery'
             ? {
-                senderName: 'Babirye Prossy',
-                senderPhone: '+256 772 901 882',
+                senderName: paxName,
+                senderPhone: paxPhone,
                 recipientName: recipientName.trim() || 'Consignee',
                 recipientPhone: recipientPhone.trim() || '+256 700 000 000',
                 parcelDescription: parcelDesc.trim() || 'Standard package',
@@ -139,7 +159,12 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+      <OfflineFreshnessBanner
+        isOffline={isOffline}
+        lastSyncedAt={lastSyncedAt}
+        contextLabel="Cached rider directory & booking history"
+      />
       {/* 1. Header Banner */}
       <div className="bg-[#0B192C] text-white rounded-2xl p-5 shadow-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -150,7 +175,13 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
             Safe, Inspected Boda-Bodas in Luweero District
           </h2>
           <p className="text-xs text-slate-300 mt-0.5">
-            Logged in as <strong>Babirye Prossy</strong> (+256 772 901 882) · Luweero Central
+            {activePassenger ? (
+              <>
+                Logged in as <strong>{activePassenger.fullName}</strong> ({activePassenger.phone}) · {activePassenger.residentialArea || activePassenger.district || 'Luweero Central'}
+              </>
+            ) : (
+              <span>Guest Passenger Booking Mode · Luweero District</span>
+            )}
           </p>
         </div>
 
@@ -377,26 +408,38 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Choose Available Verified Rider:
                 </label>
-                <div className="space-y-1.5 max-h-36 overflow-y-auto">
-                  {verifiedRiders.map((r) => (
-                    <div
-                      key={r.id}
-                      onClick={() => setSelectedRiderId(r.id)}
-                      className={`p-2.5 rounded-xl border text-xs flex items-center justify-between cursor-pointer transition-colors ${
-                        selectedRiderId === r.id
-                          ? 'border-amber-500 bg-amber-50/60 font-semibold'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Bike className="w-3.5 h-3.5 text-amber-600" />
-                        <span>{r.fullName} ({r.motorcycleReg})</span>
+                {verifiedRiders.length === 0 ? (
+                  <div className="p-3 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-900">
+                    No verified boda riders are currently listed in the directory. Once the Super Administrator registers and verifies riders, they will appear here automatically.
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                    {verifiedRiders.map((r) => (
+                      <div
+                        key={r.id}
+                        onClick={() => setSelectedRiderId(r.id)}
+                        className={`p-2.5 rounded-xl border text-xs flex items-center justify-between cursor-pointer transition-colors ${
+                          selectedRiderId === r.id
+                            ? 'border-amber-500 bg-amber-50/60 font-semibold'
+                            : 'border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Bike className="w-3.5 h-3.5 text-amber-600" />
+                          <span>{r.fullName} ({r.motorcycleReg})</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500">★ {r.rating}</span>
                       </div>
-                      <span className="text-[10px] text-slate-500">★ {r.rating}</span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {bookingError && (
+                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-semibold">
+                  {bookingError}
+                </div>
+              )}
 
               {/* Price Calculation Box */}
               <div className="p-3 bg-slate-900 text-white rounded-xl flex items-center justify-between">
@@ -414,13 +457,15 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({ lang, onOpenSOS }) =
 
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                disabled={isSubmitting || verifiedRiders.length === 0}
+                className="w-full py-3 bg-amber-400 hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
                 <span>
                   {isSubmitting
                     ? 'Connecting to Rider...'
+                    : verifiedRiders.length === 0
+                    ? 'No Riders Available'
                     : bookingType === 'ride'
                     ? 'Confirm Boda Booking'
                     : 'Dispatch Parcel Delivery'}

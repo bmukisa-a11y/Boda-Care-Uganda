@@ -16,24 +16,85 @@ import {
   UserPlus,
   Send,
   MessageCircle,
+  Zap,
+  ShieldAlert,
 } from 'lucide-react';
 import { storage } from '../../lib/storage';
 import { formatUgx, translations, Language } from '../../lib/i18n';
 
 interface FounderDashboardTabProps {
   lang: Language;
-  onNavigateSection: (section: 'overview' | 'verifications' | 'profile' | 'invitations' | 'riders' | 'finance' | 'emergency' | 'stages' | 'schema' | 'logs' | 'guide') => void;
+  onNavigateSection: (
+    section:
+      | 'overview'
+      | 'central_registry'
+      | 'verifications'
+      | 'profile'
+      | 'invitations'
+      | 'riders'
+      | 'jobs'
+      | 'swaps'
+      | 'repairs'
+      | 'finance'
+      | 'emergency'
+      | 'system_reset'
+      | 'stages'
+      | 'schema'
+      | 'logs'
+      | 'guide'
+  ) => void;
 }
 
 export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
   lang,
   onNavigateSection,
 }) => {
-  const t = translations[lang];
+  const _t = translations[lang];
+  const [liveTotals, setLiveTotals] = React.useState<{
+    riders: number;
+    passengers: number;
+    jobs: number;
+    stations: number;
+    centres: number;
+    stages: number;
+    activeRiders: number;
+  } | null>(null);
 
+  const [refreshTick, setRefreshTick] = React.useState(0);
+
+  const loadAnalytics = React.useCallback(() => {
+    fetch('/api/admin/analytics', {
+      headers: { 'x-admin-role': 'super_admin', 'x-admin-id': 'admin-founder-mukisa' },
+      cache: 'no-store',
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (json?.analytics?.totals) {
+          setLiveTotals({
+            ...json.analytics.totals,
+            activeRiders: json.analytics.ridersByStatus?.active ?? json.analytics.totals.riders,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  React.useEffect(() => {
+    loadAnalytics();
+    const onDirUpdate = () => {
+      setRefreshTick((v) => v + 1);
+      loadAnalytics();
+    };
+    window.addEventListener('bodacare:directory-updated', onDirUpdate);
+    return () => window.removeEventListener('bodacare:directory-updated', onDirUpdate);
+  }, [loadAnalytics]);
+
+  void refreshTick;
   const founder = storage.getFounderProfile();
   const riders = storage.getRiders();
+  const passengers = storage.getPassengers();
   const stages = storage.getStages();
+  const swapStations = storage.getSwapStations();
   const businesses = storage.getBusinesses();
   const bookings = storage.getBookings();
   const transactions = storage.getTransactions();
@@ -41,13 +102,14 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
   const auditLogs = storage.getAuditLogs();
   const incidents = storage.getIncidents();
 
-  // Metrics calculations
-  const totalRiders = riders.length;
-  const activeRiders = riders.filter((r) => r.isOnline || r.verificationStatus === 'verified').length;
-  const totalPassengers = 48 + bookings.length; // Active user community
-  const totalStages = stages.length;
-  const totalGarages = businesses.length;
-  const totalBookingsCount = bookings.length + 142; // Historical + live
+  // Metrics calculations from real stored database records
+  const totalRiders = liveTotals?.riders ?? riders.length;
+  const activeRiders = liveTotals?.activeRiders ?? riders.filter((r) => r.isOnline || r.verificationStatus === 'verified').length;
+  const totalPassengers = liveTotals?.passengers ?? passengers.length;
+  const totalStages = liveTotals?.stages ?? stages.length;
+  const totalSwapStations = liveTotals?.stations ?? swapStations.length;
+  const totalGarages = liveTotals?.centres ?? businesses.length;
+  const totalBookingsCount = bookings.length;
   const activeSubsCount = riders.filter((r) => r.subscriptionTier !== 'basic').length;
   const pendingInvitesCount = invitations.filter((i) => i.status === 'pending').length;
   const activeEmergencies = incidents.filter((i) => i.status === 'active').length;
@@ -55,7 +117,7 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
 
   const totalMonthlyRevenue = transactions
     .filter((tx) => tx.status === 'completed')
-    .reduce((sum, tx) => sum + tx.amountUgx, 0) + 1250000;
+    .reduce((sum, tx) => sum + tx.amountUgx, 0);
 
   return (
     <div className="space-y-6">
@@ -89,6 +151,13 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
 
           <div className="flex flex-wrap items-center gap-2">
             <button
+              onClick={() => onNavigateSection('central_registry')}
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-extrabold shadow transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Central Registry &amp; RBAC</span>
+            </button>
+            <button
               onClick={() => onNavigateSection('profile')}
               className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold border border-slate-700 transition-colors cursor-pointer"
             >
@@ -105,18 +174,18 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
         </div>
       </div>
 
-      {/* 2. Key Executive Indicators (9 KPI Grid) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {/* 2. Key Executive Indicators */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Total Members */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase">Total Members</span>
+            <span className="text-[11px] font-semibold text-slate-500 uppercase">Registered Members</span>
             <Users className="w-4 h-4 text-sky-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">
-            {totalRiders + totalPassengers + 12}
+          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono tabular-nums">
+            {totalRiders + totalPassengers}
           </p>
-          <p className="text-[11px] text-slate-500 mt-1">Across Luweero & Kikyusa</p>
+          <p className="text-[11px] text-slate-500 mt-1">{totalRiders} Riders · {totalPassengers} Passengers</p>
         </div>
 
         {/* Active Riders */}
@@ -125,7 +194,7 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
             <span className="text-[11px] font-semibold text-slate-500 uppercase">Active Boda Riders</span>
             <Bike className="w-4 h-4 text-amber-500" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{activeRiders}</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono tabular-nums">{activeRiders}</p>
           <p className="text-[11px] text-emerald-600 mt-1 font-semibold">{totalRiders} Total registered</p>
         </div>
 
@@ -135,8 +204,8 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
             <span className="text-[11px] font-semibold text-slate-500 uppercase">Registered Passengers</span>
             <MapPin className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{totalPassengers}</p>
-          <p className="text-[11px] text-slate-500 mt-1">Verified phone numbers</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono tabular-nums">{totalPassengers}</p>
+          <p className="text-[11px] text-slate-500 mt-1">Smartphone &amp; Assisted accounts</p>
         </div>
 
         {/* Registered Stages */}
@@ -145,28 +214,38 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
             <span className="text-[11px] font-semibold text-slate-500 uppercase">Registered Stages</span>
             <Building2 className="w-4 h-4 text-indigo-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{totalStages}</p>
-          <p className="text-[11px] text-indigo-700 font-semibold mt-1">Kikyusa, Luweero, Kasana</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono tabular-nums">{totalStages}</p>
+          <p className="text-[11px] text-indigo-700 font-semibold mt-1">Luweero &amp; Sub-Counties</p>
+        </div>
+
+        {/* Swap Stations */}
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase">Swap Stations</span>
+            <Zap className="w-4 h-4 text-amber-500" />
+          </div>
+          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono tabular-nums">{totalSwapStations}</p>
+          <p className="text-[11px] text-amber-700 font-semibold mt-1">E-Boda Battery Hubs</p>
         </div>
 
         {/* Registered Garages */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase">Garages & Spares</span>
+            <span className="text-[11px] font-semibold text-slate-500 uppercase">Garages &amp; Spares</span>
             <Wrench className="w-4 h-4 text-teal-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{totalGarages}</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono tabular-nums">{totalGarages}</p>
           <p className="text-[11px] text-slate-500 mt-1">Genuine parts partners</p>
         </div>
 
         {/* Total Bookings */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase">Total Bookings</span>
+            <span className="text-[11px] font-semibold text-slate-500 uppercase">Recorded Bookings</span>
             <Calendar className="w-4 h-4 text-rose-500" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{totalBookingsCount}</p>
-          <p className="text-[11px] text-emerald-600 font-semibold mt-1">Passenger & Parcels</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono tabular-nums">{totalBookingsCount}</p>
+          <p className="text-[11px] text-emerald-600 font-semibold mt-1">Passenger &amp; Parcels</p>
         </div>
 
         {/* Monthly Subscriptions */}
@@ -175,20 +254,20 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
             <span className="text-[11px] font-semibold text-slate-500 uppercase">Active Subscriptions</span>
             <CreditCard className="w-4 h-4 text-purple-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{activeSubsCount}</p>
-          <p className="text-[11px] text-slate-500 mt-1">Standard & Premium tiers</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-1 font-mono tabular-nums">{activeSubsCount}</p>
+          <p className="text-[11px] text-slate-500 mt-1">Standard &amp; Premium tiers</p>
         </div>
 
         {/* Total Revenue */}
-        <div className="bg-white p-4 rounded-2xl border border-amber-300 shadow-sm bg-gradient-to-br from-amber-50 to-white">
+        <div className="bg-white p-4 rounded-2xl border border-amber-300 shadow-sm bg-gradient-to-br from-amber-50 to-white md:col-span-2 lg:col-span-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-amber-900 uppercase">Platform Revenue</span>
+            <span className="text-[11px] font-bold text-amber-900 uppercase">Verified Revenue</span>
             <DollarSign className="w-4 h-4 text-amber-700" />
           </div>
-          <p className="text-2xl font-black text-[#0B192C] mt-1 font-mono">
+          <p className="text-2xl font-black text-[#0B192C] mt-1 font-mono tabular-nums">
             {formatUgx(totalMonthlyRevenue)}
           </p>
-          <p className="text-[11px] text-amber-800 font-semibold mt-1">MTN & Airtel MoMo</p>
+          <p className="text-[11px] text-amber-800 font-semibold mt-1">MTN &amp; Airtel MoMo (Preserved on Reset)</p>
         </div>
       </div>
 
@@ -202,6 +281,24 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
           </p>
 
           <div className="space-y-2 pt-1">
+            <button
+              onClick={() => onNavigateSection('central_registry')}
+              className="w-full p-3 rounded-xl border border-emerald-400 bg-emerald-50/70 hover:bg-emerald-100/70 flex items-center justify-between text-left transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black">
+                  DB
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-900">
+                    Open Central Registry, Search &amp; RBAC
+                  </p>
+                  <p className="text-[10px] text-slate-600">Manage all 6 categories, exports, WhatsApp/SMS &amp; restricted admins</p>
+                </div>
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-emerald-700" />
+            </button>
+
             <button
               onClick={() => onNavigateSection('verifications')}
               className="w-full p-3 rounded-xl border border-amber-300 bg-amber-50/70 hover:bg-amber-100/70 flex items-center justify-between text-left transition-colors cursor-pointer"
@@ -219,7 +316,7 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
                       </span>
                     )}
                   </p>
-                  <p className="text-[10px] text-slate-600">Review MTN (0766848865) & Airtel (0731931455) submissions</p>
+                  <p className="text-[10px] text-slate-600">Review MTN (0766848865) &amp; Airtel (0731931455) submissions</p>
                 </div>
               </div>
               <ArrowUpRight className="w-4 h-4 text-amber-700" />
@@ -271,6 +368,22 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
                 </div>
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-400" />
+            </button>
+
+            <button
+              onClick={() => onNavigateSection('system_reset')}
+              className="w-full p-3 rounded-xl border border-rose-300 bg-rose-50/70 hover:bg-rose-100/70 flex items-center justify-between text-left transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold">
+                  <ShieldAlert className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-900">App Reset &amp; Member Management</p>
+                  <p className="text-[10px] text-rose-800">Clear existing directory or manually register clean member records</p>
+                </div>
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-rose-700" />
             </button>
 
             <button

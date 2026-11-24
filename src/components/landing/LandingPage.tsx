@@ -1,6 +1,25 @@
 import React, { useState } from 'react';
-import { Shield, Bike, MapPin, Users, Wrench, ArrowRight, CheckCircle2, Phone, Star, Sparkles, AlertTriangle, ChevronRight, Calculator } from 'lucide-react';
-import { HERO_IMAGE, STAGE_IMAGE, INITIAL_PLANS } from '../../lib/storage';
+import {
+  Shield,
+  Bike,
+  MapPin,
+  Users,
+  Wrench,
+  ArrowRight,
+  CheckCircle2,
+  Phone,
+  Star,
+  Sparkles,
+  AlertTriangle,
+  ChevronRight,
+  Calculator,
+  Copy,
+  Check,
+  Zap,
+  Briefcase,
+  Download,
+} from 'lucide-react';
+import { HERO_IMAGE, STAGE_IMAGE, INITIAL_PLANS, storage } from '../../lib/storage';
 import { formatUgx, translations, Language } from '../../lib/i18n';
 import { UserRole } from '../../types';
 
@@ -10,6 +29,8 @@ interface LandingPageProps {
   onOpenPayment: () => void;
   onOpenSOS: () => void;
   onNavigateTab: (tab: string) => void;
+  isPWAInstalled?: boolean;
+  onOpenInstall?: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -18,8 +39,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onOpenPayment,
   onOpenSOS,
   onNavigateTab,
+  isPWAInstalled = false,
+  onOpenInstall,
 }) => {
   const t = translations[lang];
+
+  const [copiedMtn, setCopiedMtn] = useState(false);
+  const [copiedAirtel, setCopiedAirtel] = useState(false);
+
+  const handleCopyNumber = (num: string, type: 'mtn' | 'airtel') => {
+    storage.safeCopyToClipboard(num);
+    if (type === 'mtn') {
+      setCopiedMtn(true);
+      setTimeout(() => setCopiedMtn(false), 2000);
+    } else {
+      setCopiedAirtel(true);
+      setTimeout(() => setCopiedAirtel(false), 2000);
+    }
+  };
 
   // Quick Fare Estimator State
   const [pickup, setPickup] = useState('Kikyusa Main Stage');
@@ -40,23 +77,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* 1. Hero Section */}
-      <section className="relative bg-[#0B192C] text-white overflow-hidden py-12 md:py-20 border-b border-slate-800">
+      <section className="relative bg-[#0B192C] text-white overflow-hidden py-10 sm:py-12 md:py-20 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-semibold">
-                <span>Luweero District Pilot</span>
+                <span>E Boda Connect Luweero</span>
                 <span>·</span>
-                <span>Kikyusa & Surrounding Communities</span>
+                <span>Kikyusa &amp; Surrounding Communities</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.15] text-balance">
-                Digital Business Platform for <span className="text-amber-400">Boda-Boda Riders</span> & Communities in Uganda.
+                Digital Business Platform for <span className="text-amber-400">Boda-Boda Riders</span> &amp; Communities in Uganda.
               </h1>
 
               <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl">
-                BodaCare empowers motorcycle taxi operators with digital income tracking, fair-priced passenger bookings, digital stage management, genuine spare parts, and one-tap emergency safety.
+                E Boda Connect Luweero empowers motorcycle taxi operators with digital income tracking, fair-priced passenger bookings, digital stage management, genuine spare parts, and one-tap emergency safety.
               </p>
 
               {/* Action Buttons */}
@@ -66,7 +103,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     onSelectRole('rider');
                     onNavigateTab('rider');
                   }}
-                  className="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm flex items-center gap-2 shadow-lg shadow-amber-400/20 active:scale-95 transition-all cursor-pointer"
+                  className="min-h-[48px] px-5 sm:px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm flex items-center gap-2 shadow-lg shadow-amber-400/20 active:scale-95 transition-all cursor-pointer"
                 >
                   <Bike className="w-4 h-4" />
                   <span>Launch Rider Dashboard</span>
@@ -77,15 +114,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     onSelectRole('passenger');
                     onNavigateTab('passenger');
                   }}
-                  className="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
+                  className="min-h-[48px] px-5 sm:px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
                 >
                   <MapPin className="w-4 h-4 text-amber-400" />
                   <span>Book Boda / Send Parcel</span>
                 </button>
 
+                {!isPWAInstalled && onOpenInstall && (
+                  <button
+                    type="button"
+                    onClick={onOpenInstall}
+                    className="min-h-[48px] px-4 sm:px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm flex items-center gap-2 active:scale-95 transition-all cursor-pointer shadow-lg shadow-emerald-500/20"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Install Android App</span>
+                  </button>
+                )}
+
                 <button
                   onClick={onOpenSOS}
-                  className="px-4 py-3.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold text-sm flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
+                  className="min-h-[48px] px-4 py-3 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold text-sm flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
                 >
                   <AlertTriangle className="w-4 h-4 text-amber-300" />
                   <span>SOS Rescue</span>
@@ -437,6 +485,105 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Official Payment Instructions Section */}
+      <section className="py-12 bg-slate-100 border-t border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="text-center space-y-1">
+            <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
+              Verified Administrative Payment Gateways
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+              Official BodaCare Uganda Mobile Money Accounts
+            </h2>
+            <p className="text-xs text-slate-600 max-w-xl mx-auto">
+              All subscription fees and wallet credits must be made to Account Name: <strong>Mukisa Brian</strong>.
+              Every transaction ID is strictly audited to prevent duplicates.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* MTN */}
+            <div className="bg-white p-5 rounded-2xl border border-amber-300 shadow-sm flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-black bg-amber-400 text-slate-950 uppercase tracking-wider">
+                  MTN Mobile Money (*165#)
+                </span>
+                <p className="text-xl font-black font-mono text-slate-900">0766848865</p>
+                <p className="text-xs text-slate-600 font-medium">Account Name: Mukisa Brian</p>
+              </div>
+              <button
+                onClick={() => handleCopyNumber('0766848865', 'mtn')}
+                className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                {copiedMtn ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                <span>{copiedMtn ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+
+            {/* Airtel */}
+            <div className="bg-white p-5 rounded-2xl border border-rose-300 shadow-sm flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-black bg-rose-600 text-white uppercase tracking-wider">
+                  Airtel Money (*185#)
+                </span>
+                <p className="text-xl font-black font-mono text-slate-900">0731931455</p>
+                <p className="text-xs text-slate-600 font-medium">Account Name: Mukisa Brian</p>
+              </div>
+              <button
+                onClick={() => handleCopyNumber('0731931455', 'airtel')}
+                className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                {copiedAirtel ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                <span>{copiedAirtel ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Modules 2 & 3 Spotlight: Electric Bodas & Job Freight */}
+      <section className="py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-amber-500/15 via-slate-900 to-[#0B192C] text-white p-7 rounded-3xl border border-amber-500/30 shadow-xl flex flex-col justify-between space-y-4">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
+                <Zap className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-black">Electric Bike Battery Swap Stations</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Zero fuel expense, instant 2-minute battery swaps. Find live battery levels at stations in Kikyusa, Luweero Town, Wobulenzi, and Kasana Market.
+              </p>
+            </div>
+            <button
+              onClick={() => onNavigateTab('swaps')}
+              className="px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center justify-between shadow-md transition-colors cursor-pointer"
+            >
+              <span>Explore Interactive Luweero Swap Map</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="bg-gradient-to-br from-emerald-500/15 via-slate-900 to-[#0B192C] text-white p-7 rounded-3xl border border-emerald-500/30 shadow-xl flex flex-col justify-between space-y-4">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-400 text-slate-950 flex items-center justify-center font-bold">
+                <Briefcase className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-black">Jobs & Agriculture Freight Marketplace</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Connect with coffee cooperatives, produce wholesalers, and corporate delivery clients across Luweero District with direct proposal submissions.
+              </p>
+            </div>
+            <button
+              onClick={() => onNavigateTab('jobs')}
+              className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-between shadow-md transition-colors cursor-pointer"
+            >
+              <span>Browse Active Delivery Opportunities</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </section>
 

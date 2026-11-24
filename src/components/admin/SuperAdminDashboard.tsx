@@ -22,8 +22,32 @@ import {
   Database,
   Settings,
   HelpCircle,
+  Briefcase,
+  Zap,
+  Wrench,
+  Key,
+  Globe,
+  Sliders,
+  Trash2,
+  ExternalLink,
+  Radar,
+  MailCheck,
+  ShieldAlert,
+  Lock,
 } from 'lucide-react';
-import { RiderProfile, EmergencyIncident, PaymentTransaction, AuditLog, Stage } from '../../types';
+import {
+  RiderProfile,
+  EmergencyIncident,
+  PaymentTransaction,
+  AuditLog,
+  Stage,
+  BodaJob,
+  BatterySwapStation,
+  StationProblemReport,
+  Mechanic,
+  RepairRequest,
+  UserRole,
+} from '../../types';
 import { storage, INITIAL_PLANS } from '../../lib/storage';
 import { formatUgx, translations, Language } from '../../lib/i18n';
 import { FounderProfileView } from './FounderProfileView';
@@ -31,15 +55,71 @@ import { InvitationsManager } from './InvitationsManager';
 import { FounderDashboardTab } from './FounderDashboardTab';
 import { FounderGuideView } from './FounderGuideView';
 import { AdminPaymentVerification } from './AdminPaymentVerification';
+import { AdminJobSmsHub } from './AdminJobSmsHub';
+import { CentralAdminRegistry } from './CentralAdminRegistry';
+import { AdminDailyDiscoveredJobs } from './AdminDailyDiscoveredJobs';
+import { AdminIntegrationsHub } from './AdminIntegrationsHub';
+import { AdminWelcomeMessages } from './AdminWelcomeMessages';
+import { AdminSystemResetHub } from './AdminSystemResetHub';
 
 interface SuperAdminDashboardProps {
   lang: Language;
+  initialSection?: string;
+  currentRole?: UserRole;
 }
 
-export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }) => {
+export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
+  lang,
+  initialSection,
+  currentRole = 'super_admin',
+}) => {
   const t = translations[lang];
 
-  const [activeSection, setActiveSection] = useState<'overview' | 'verifications' | 'profile' | 'invitations' | 'riders' | 'finance' | 'emergency' | 'stages' | 'schema' | 'guide'>('overview');
+  const [activeSection, setActiveSection] = useState<
+    | 'overview'
+    | 'central_registry'
+    | 'verifications'
+    | 'profile'
+    | 'invitations'
+    | 'riders'
+    | 'jobs'
+    | 'daily_discovered_jobs'
+    | 'swaps'
+    | 'repairs'
+    | 'finance'
+    | 'emergency'
+    | 'external_config'
+    | 'welcome_messages'
+    | 'system_reset'
+    | 'stages'
+    | 'schema'
+    | 'guide'
+  >(() =>
+    initialSection === 'daily_discovered_jobs'
+      ? 'daily_discovered_jobs'
+      : initialSection === 'welcome_messages'
+      ? 'welcome_messages'
+      : initialSection === 'external_config'
+      ? 'external_config'
+      : initialSection === 'system_reset'
+      ? 'system_reset'
+      : 'overview'
+  );
+
+  const [registryInitialTab, setRegistryInitialTab] = useState<
+    'analytics' | 'riders' | 'passengers' | 'stages' | 'stations' | 'centres' | 'jobs'
+  >('analytics');
+
+  React.useEffect(() => {
+    if (
+      initialSection === 'daily_discovered_jobs' ||
+      initialSection === 'welcome_messages' ||
+      initialSection === 'external_config' ||
+      initialSection === 'system_reset'
+    ) {
+      setActiveSection(initialSection);
+    }
+  }, [initialSection]);
   const [founder, setFounder] = useState(() => storage.getFounderProfile());
 
   // State loaded from storage
@@ -48,6 +128,11 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
   const [transactions, setTransactions] = useState<PaymentTransaction[]>(() => storage.getTransactions());
   const [stages, setStages] = useState<Stage[]>(() => storage.getStages());
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => storage.getAuditLogs());
+  const [jobs, setJobs] = useState<BodaJob[]>(() => storage.getJobs());
+  const [swapStations, setSwapStations] = useState<BatterySwapStation[]>(() => storage.getSwapStations());
+  const [stationProblems, setStationProblems] = useState<StationProblemReport[]>(() => storage.getStationProblems());
+  const [mechanicsList, setMechanicsList] = useState<Mechanic[]>(() => storage.getMechanics());
+  const [repairOrders, setRepairOrders] = useState<RepairRequest[]>(() => storage.getRepairRequests());
 
   // Search & Filter state for riders
   const [riderSearch, setRiderSearch] = useState('');
@@ -67,6 +152,21 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [schemaNotice, setSchemaNotice] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    const syncLocalState = () => {
+      setRiders(storage.getRiders());
+      setStages(storage.getStages());
+      setJobs(storage.getJobs());
+      setSwapStations(storage.getSwapStations());
+      setMechanicsList(storage.getMechanics());
+      setAuditLogs(storage.getAuditLogs());
+      setTransactions(storage.getTransactions());
+      setIncidents(storage.getIncidents());
+    };
+    window.addEventListener('bodacare:directory-updated', syncLocalState);
+    return () => window.removeEventListener('bodacare:directory-updated', syncLocalState);
+  }, []);
+
   // Overview metrics calculations
   const totalRiders = riders.length;
   const verifiedRidersCount = riders.filter((r) => r.verificationStatus === 'verified').length;
@@ -76,17 +176,21 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
 
   const totalMonthlyRevenue = transactions
     .filter((tx) => tx.status === 'completed')
-    .reduce((sum, tx) => sum + tx.amountUgx, 0) + 1250000; // Historical base
+    .reduce((sum, tx) => sum + tx.amountUgx, 0);
   const totalAnnualRevenue = totalMonthlyRevenue * 12;
 
+  const [rejectModalRiderId, setRejectModalRiderId] = useState<string | null>(null);
+  const [rejectionReasonInput, setRejectionReasonInput] = useState('Missing clear copy of Stage Chairperson clearance letter');
+
   // Actions
-  const handleUpdateStatus = (riderId: string, status: RiderProfile['verificationStatus']) => {
-    storage.updateRiderStatus(riderId, status);
+  const handleUpdateStatus = (riderId: string, status: RiderProfile['verificationStatus'], reason?: string) => {
+    storage.updateRiderStatus(riderId, status, reason);
     setRiders(storage.getRiders());
     setAuditLogs(storage.getAuditLogs());
     if (selectedRiderDossier && selectedRiderDossier.id === riderId) {
-      setSelectedRiderDossier({ ...selectedRiderDossier, verificationStatus: status });
+      setSelectedRiderDossier({ ...selectedRiderDossier, verificationStatus: status, rejectionReason: reason });
     }
+    setRejectModalRiderId(null);
   };
 
   const handleResolveIncident = (e: React.FormEvent) => {
@@ -158,6 +262,22 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
     return matchesSearch && matchesStatus;
   });
 
+  if (currentRole !== 'super_admin') {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white rounded-2xl border border-rose-300 p-8 text-center space-y-3 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto">
+            <Lock className="w-6 h-6" />
+          </div>
+          <h2 className="text-lg font-extrabold text-slate-900">Super Administrator Access Only</h2>
+          <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+            The BodaCare Uganda Command Center and App Reset &amp; Member Management controls are restricted exclusively to the authenticated Super Administrator (Brian Mukisa).
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* 1. Super Admin Title Card */}
@@ -185,6 +305,15 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
             }`}
           >
             Executive Cockpit
+          </button>
+          <button
+            onClick={() => setActiveSection('central_registry')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'central_registry' ? 'bg-emerald-500 text-slate-950' : 'bg-emerald-950/60 text-emerald-300 hover:text-white border border-emerald-700/60'
+            }`}
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span>Central Registry &amp; RBAC</span>
           </button>
           <button
             onClick={() => setActiveSection('verifications')}
@@ -224,6 +353,44 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
             Riders ({pendingApprovalsCount > 0 ? `${pendingApprovalsCount} Pending` : riders.length})
           </button>
           <button
+            onClick={() => setActiveSection('jobs')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'jobs' ? 'bg-amber-400 text-slate-950' : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            <Briefcase className="w-3.5 h-3.5" />
+            <span>Jobs &amp; SMS Alerts ({jobs.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveSection('daily_discovered_jobs')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'daily_discovered_jobs'
+                ? 'bg-sky-400 text-slate-950'
+                : 'bg-sky-950/70 text-sky-300 hover:text-white border border-sky-700/60'
+            }`}
+          >
+            <Radar className="w-3.5 h-3.5" />
+            <span>Daily Discovered Jobs</span>
+          </button>
+          <button
+            onClick={() => setActiveSection('swaps')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'swaps' ? 'bg-amber-400 text-slate-950' : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Battery Swaps ({swapStations.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveSection('repairs')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'repairs' ? 'bg-amber-400 text-slate-950' : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            <Wrench className="w-3.5 h-3.5" />
+            <span>Garages ({mechanicsList.length})</span>
+          </button>
+          <button
             onClick={() => setActiveSection('finance')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
               activeSection === 'finance' ? 'bg-amber-400 text-slate-950' : 'text-slate-300 hover:text-white'
@@ -238,6 +405,26 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
             }`}
           >
             SOS Center ({activeEmergenciesCount})
+          </button>
+          <button
+            onClick={() => setActiveSection('welcome_messages')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'welcome_messages'
+                ? 'bg-emerald-500 text-slate-950'
+                : 'bg-emerald-950/60 text-emerald-300 hover:text-white border border-emerald-700/60'
+            }`}
+          >
+            <MailCheck className="w-3.5 h-3.5" />
+            <span>Welcome Messages</span>
+          </button>
+          <button
+            onClick={() => setActiveSection('external_config')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'external_config' ? 'bg-sky-500 text-white' : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>Integrations &amp; Env</span>
           </button>
           <button
             onClick={() => setActiveSection('stages')}
@@ -256,6 +443,17 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
             SQL Schema
           </button>
           <button
+            onClick={() => setActiveSection('system_reset')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'system_reset'
+                ? 'bg-rose-600 text-white'
+                : 'bg-rose-950/70 text-rose-300 hover:text-white border border-rose-700/60'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>App Reset &amp; Member Management</span>
+          </button>
+          <button
             onClick={() => setActiveSection('guide')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
               activeSection === 'guide' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:text-white'
@@ -271,6 +469,23 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
         <FounderDashboardTab
           lang={lang}
           onNavigateSection={(section) => setActiveSection(section as typeof activeSection)}
+        />
+      )}
+
+      {/* CENTRALISED ADMIN REGISTRATION & MANAGEMENT SYSTEM */}
+      {activeSection === 'central_registry' && (
+        <CentralAdminRegistry
+          key={`registry-${registryInitialTab}`}
+          initialTab={registryInitialTab}
+          onOpenBulkJobSms={() => setActiveSection('jobs')}
+          onDataSynced={() => {
+            setRiders(storage.getRiders());
+            setStages(storage.getStages());
+            setJobs(storage.getJobs());
+            setSwapStations(storage.getSwapStations());
+            setMechanicsList(storage.getMechanics());
+            setAuditLogs(storage.getAuditLogs());
+          }}
         />
       )}
 
@@ -587,6 +802,243 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
         </div>
       )}
 
+      {/* JOBS & BULK SMS EMPLOYMENT NOTIFICATION SYSTEM */}
+      {activeSection === 'jobs' && (
+        <AdminJobSmsHub
+          adminName={`${founder.fullName} (Super Admin)`}
+          onJobsChanged={(updatedJobs) => setJobs(updatedJobs)}
+        />
+      )}
+
+      {/* AUTOMATED DAILY JOB DISCOVERY & VERIFICATION DASHBOARD */}
+      {activeSection === 'daily_discovered_jobs' && (
+        <AdminDailyDiscoveredJobs
+          onJobPublished={() => {
+            setJobs(storage.getJobs());
+            setAuditLogs(storage.getAuditLogs());
+          }}
+        />
+      )}
+
+      {/* BATTERY SWAP STATIONS MANAGEMENT */}
+      {activeSection === 'swaps' && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-500" />
+                <span>Battery Swap Stations Network</span>
+              </h3>
+              <p className="text-xs text-slate-500">
+                Monitor charging stocks, inspect operator certifications, and address rider fault tickets.
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-slate-700 bg-amber-50 text-amber-900 px-3 py-1 rounded-full border border-amber-200">
+              {swapStations.length} Active Luweero Stations
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {swapStations.map((station) => (
+              <div key={station.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">{station.name}</h4>
+                    <p className="text-xs text-slate-500">{station.locationName} • {station.subCounty}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      storage.verifyStation(station.id, !station.verified);
+                      setSwapStations(storage.getSwapStations());
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                      station.verified
+                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                        : 'bg-slate-200 text-slate-700 hover:bg-emerald-100 hover:text-emerald-800'
+                    }`}
+                  >
+                    {station.verified ? '✓ Verified' : 'Unverified (Click to Verify)'}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                    <span className="text-[10px] text-slate-400 font-bold block uppercase">Available Charged</span>
+                    <span className="text-lg font-mono font-black text-emerald-600">
+                      {station.availableBatteries} packs
+                    </span>
+                  </div>
+                  <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                    <span className="text-[10px] text-slate-400 font-bold block uppercase">Charging in Dock</span>
+                    <span className="text-lg font-mono font-black text-amber-600">
+                      {station.chargingBatteries} packs
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-slate-600 space-y-1 pt-1 border-t border-slate-200">
+                  <p><strong>Operator:</strong> {station.operatorName} ({station.operatorPhone})</p>
+                  <p><strong>Battery Model:</strong> {station.batteryBrand} ({station.swapFeeUgx.toLocaleString()} UGX/swap)</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Reported Station Faults */}
+          <div className="pt-4 border-t border-slate-200">
+            <h4 className="font-bold text-slate-900 text-sm mb-3">Reported Station Issues & Downtime</h4>
+            <div className="space-y-2">
+              {stationProblems.length === 0 ? (
+                <p className="text-xs text-slate-400 italic">No active station tickets reported.</p>
+              ) : (
+                stationProblems.map((prob) => (
+                  <div
+                    key={prob.id}
+                    className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between text-xs"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900">{prob.stationName}</span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
+                            prob.status === 'open' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
+                          }`}
+                        >
+                          {prob.status}
+                        </span>
+                      </div>
+                      <p className="text-slate-600 mt-0.5">
+                        Issue: <strong>{prob.issueType.replace('_', ' ')}</strong> — "{prob.description}"
+                      </p>
+                      <p className="text-[10px] text-slate-400">Reported by {prob.riderPhone} ({prob.riderName})</p>
+                    </div>
+
+                    {prob.status === 'open' && (
+                      <button
+                        onClick={() => {
+                          storage.resolveStationProblem(prob.id, 'Inspected and repaired by BodaCare field team.');
+                          setStationProblems(storage.getStationProblems());
+                        }}
+                        className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg cursor-pointer"
+                      >
+                        Resolve
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REPAIRS & WORKSHOPS MANAGEMENT */}
+      {activeSection === 'repairs' && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Wrench className="w-4 h-4 text-sky-600" />
+                <span>Certified Mechanics & Garage Network</span>
+              </h3>
+              <p className="text-xs text-slate-500">
+                Manage partner workshops, verify technician certifications, and inspect roadside dispatches.
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-slate-700 bg-sky-50 text-sky-900 px-3 py-1 rounded-full border border-sky-200">
+              {mechanicsList.length} Partner Garages
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {mechanicsList.map((m) => (
+              <div key={m.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-slate-900 text-sm">{m.name}</h4>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                    ★ {m.rating.toFixed(1)}
+                  </span>
+                </div>
+                <p className="text-slate-600">Lead Mechanic: <strong>{m.ownerName}</strong> ({m.phone})</p>
+                <p className="text-slate-600">Location: {m.subCounty}, Luweero District</p>
+                <div className="flex flex-wrap gap-1 pt-1">
+                  {m.services.map((s, i) => (
+                    <span key={i} className="px-2 py-0.5 bg-white text-slate-700 rounded border border-slate-200 text-[10px]">
+                      {s.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Active Repair Orders */}
+          <div className="pt-4 border-t border-slate-200">
+            <h4 className="font-bold text-slate-900 text-sm mb-3">Live Roadside & Workshop Repair Tickets</h4>
+            <div className="space-y-2">
+              {repairOrders.map((ro) => (
+                <div key={ro.id} className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900">{ro.riderName} ({ro.motorcycleReg})</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800 uppercase">
+                        {ro.serviceType}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                        {ro.status.replace('_', ' ')}
+                      </span>
+                    </div>
+                    <p className="text-slate-600 mt-0.5">{ro.description}</p>
+                    <p className="text-[10px] text-slate-400">Location: {ro.location} • Garage: {ro.garageName || 'Open'}</p>
+                  </div>
+
+                  {ro.status !== 'completed' && (
+                    <button
+                      onClick={() => {
+                        storage.updateRepairRequestStatus(ro.id, 'completed');
+                        setRepairOrders(storage.getRepairRequests());
+                      }}
+                      className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg cursor-pointer"
+                    >
+                      Complete
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WELCOME MESSAGES MANAGEMENT */}
+      {activeSection === 'welcome_messages' && (
+        <AdminWelcomeMessages />
+      )}
+
+      {/* INTEGRATIONS & ENVIRONMENT VARIABLES MANAGER */}
+      {activeSection === 'external_config' && (
+        <AdminIntegrationsHub />
+      )}
+
+      {/* APP RESET & MEMBER MANAGEMENT */}
+      {activeSection === 'system_reset' && (
+        <AdminSystemResetHub
+          currentRole={currentRole}
+          onDataChanged={() => {
+            setRiders(storage.getRiders());
+            setStages(storage.getStages());
+            setJobs(storage.getJobs());
+            setSwapStations(storage.getSwapStations());
+            setMechanicsList(storage.getMechanics());
+            setAuditLogs(storage.getAuditLogs());
+          }}
+          onNavigateRegistryTab={(regTab) => {
+            setRegistryInitialTab(regTab);
+            setActiveSection('central_registry');
+          }}
+        />
+      )}
+
       {/* 7. DATABASE SCHEMA SECTION */}
       {activeSection === 'schema' && (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
@@ -658,6 +1110,24 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
 
             <div className="p-3 bg-slate-50 rounded-xl space-y-2 text-xs">
               <div className="flex justify-between py-1 border-b border-slate-200">
+                <span className="text-slate-500">Unique Rider Badge ID:</span>
+                <span className="font-mono font-bold text-sky-900 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
+                  {selectedRiderDossier.riderIdNumber || 'BCU-LWR-0421'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-200">
+                <span className="text-slate-500">Powertrain / Fuel:</span>
+                <span className="font-semibold text-slate-800">
+                  {selectedRiderDossier.motorcycleType === 'electric' ? '⚡ Electric Boda (EV Swappable)' : '🏍 Petrol (ICE)'}
+                </span>
+              </div>
+              {selectedRiderDossier.batteryModel && (
+                <div className="flex justify-between py-1 border-b border-slate-200">
+                  <span className="text-slate-500">EV Battery Pack:</span>
+                  <span className="font-mono text-slate-800">{selectedRiderDossier.batteryModel}</span>
+                </div>
+              )}
+              <div className="flex justify-between py-1 border-b border-slate-200">
                 <span className="text-slate-500">National ID (NIN):</span>
                 <span className="font-mono font-bold text-slate-900">{selectedRiderDossier.nin}</span>
               </div>
@@ -670,31 +1140,66 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ lang }
                 <span className="font-mono font-bold text-slate-900">{selectedRiderDossier.motorcycleReg}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
-                <span className="text-slate-500">Ownership Status:</span>
-                <span className="capitalize font-semibold text-slate-800">{selectedRiderDossier.ownershipStatus}</span>
+                <span className="text-slate-500">Stage Clearance & Leader:</span>
+                <span className="font-semibold text-slate-800">{selectedRiderDossier.stageName}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
-                <span className="text-slate-500">Emergency Contact:</span>
+                <span className="text-slate-500">Emergency Next of Kin:</span>
                 <span className="text-slate-800">{selectedRiderDossier.emergencyContactName} ({selectedRiderDossier.emergencyContactPhone})</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-slate-500">Current Status:</span>
+                <span className="text-slate-500">Current KYC Status:</span>
                 <span className="font-bold capitalize text-amber-800">{selectedRiderDossier.verificationStatus}</span>
               </div>
             </div>
 
+            {/* Document attachments preview */}
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+              <span className="font-bold text-slate-800 block">Submitted Verification Documents:</span>
+              <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+                <div className="p-2 bg-white rounded-lg border border-slate-200">
+                  <span className="text-slate-400 block">National ID</span>
+                  <span className="text-emerald-700 font-bold">✓ Attached</span>
+                </div>
+                <div className="p-2 bg-white rounded-lg border border-slate-200">
+                  <span className="text-slate-400 block">Class A Permit</span>
+                  <span className="text-emerald-700 font-bold">✓ Attached</span>
+                </div>
+                <div className="p-2 bg-white rounded-lg border border-slate-200">
+                  <span className="text-slate-400 block">Stage Clearance</span>
+                  <span className="text-emerald-700 font-bold">✓ Endorsed</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Rejection Note prompt */}
+            {selectedRiderDossier.verificationStatus !== 'verified' && (
+              <div className="space-y-1">
+                <label className="block text-[11px] font-semibold text-slate-700">
+                  Rejection Reason / Verification Note (Sent to Rider):
+                </label>
+                <input
+                  type="text"
+                  value={rejectionReasonInput}
+                  onChange={(e) => setRejectionReasonInput(e.target.value)}
+                  placeholder="e.g. Expired driving permit or photo unreadable..."
+                  className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs"
+                />
+              </div>
+            )}
+
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => handleUpdateStatus(selectedRiderDossier.id, 'verified')}
-                className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl cursor-pointer"
+                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl cursor-pointer"
               >
                 Approve & Issue BodaCare Badge
               </button>
               <button
-                onClick={() => handleUpdateStatus(selectedRiderDossier.id, 'rejected')}
-                className="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl cursor-pointer"
+                onClick={() => handleUpdateStatus(selectedRiderDossier.id, 'rejected', rejectionReasonInput)}
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl cursor-pointer"
               >
-                Reject Application
+                Reject with Note
               </button>
             </div>
           </div>
