@@ -413,7 +413,7 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({
                     No verified boda riders are currently listed in the directory. Once the Super Administrator registers and verifies riders, they will appear here automatically.
                   </div>
                 ) : (
-                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                  <div className="space-y-1.5">
                     {verifiedRiders.map((r) => (
                       <div
                         key={r.id}
@@ -581,8 +581,8 @@ export const PassengerApp: React.FC<PassengerAppProps> = ({
 
       {/* 4. Rating & Review Modal */}
       {ratingBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 text-center space-y-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 text-center space-y-4 my-auto mx-auto">
             <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
               <Star className="w-6 h-6 fill-current" />
             </div>

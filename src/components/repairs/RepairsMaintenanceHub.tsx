@@ -256,7 +256,7 @@ export const RepairsMaintenanceHub: React.FC<RepairsMaintenanceHubProps> = ({
         </div>
 
         {/* Quick Tabs */}
-        <div className="flex items-center gap-2 mt-6 pt-5 border-t border-white/10 overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-2 mt-6 pt-5 border-t border-white/10">
           <button
             onClick={() => setActiveTab('directory')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
@@ -775,8 +775,8 @@ export const RepairsMaintenanceHub: React.FC<RepairsMaintenanceHubProps> = ({
 
       {/* MODAL 1: BOOK REPAIR REQUEST */}
       {showRequestModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-5 my-auto mx-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
@@ -908,8 +908,8 @@ export const RepairsMaintenanceHub: React.FC<RepairsMaintenanceHubProps> = ({
 
       {/* MODAL 2: LOG COMPLETED SERVICE RECORD */}
       {showAddRecordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-5 my-auto mx-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 flex items-center justify-center">

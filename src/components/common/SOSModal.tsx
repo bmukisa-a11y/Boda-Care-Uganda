@@ -157,10 +157,10 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose, lang }) => 
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border-2 border-rose-600">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border-2 border-rose-600 flex flex-col max-h-[92dvh] my-auto mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-rose-700 via-rose-800 to-red-700 text-white p-5 flex items-start justify-between">
+        <div className="bg-gradient-to-r from-rose-700 via-rose-800 to-red-700 text-white p-5 flex items-start justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20">
               <AlertOctagon className="w-7 h-7 text-amber-300 animate-pulse" />
@@ -184,7 +184,7 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose, lang }) => 
         </div>
 
         {/* Content */}
-        <div className="p-5 max-h-[80vh] overflow-y-auto">
+        <div className="p-5 min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {dispatchStep === 'idle' && (
             <div className="space-y-4">
               <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-xs text-amber-900 leading-relaxed">

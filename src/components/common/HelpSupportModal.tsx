@@ -92,10 +92,10 @@ export const HelpSupportModal: React.FC<HelpSupportModalProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[92dvh] my-auto mx-auto">
         {/* Header */}
-        <div className="bg-[#0B192C] text-white p-5 flex items-center justify-between">
+        <div className="bg-[#0B192C] text-white p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
               <HelpCircle className="w-5 h-5" />
@@ -114,7 +114,7 @@ export const HelpSupportModal: React.FC<HelpSupportModalProps> = ({ isOpen, onCl
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center border-b border-slate-200 bg-slate-50 px-5 pt-3 gap-2">
+        <div className="flex flex-wrap items-center border-b border-slate-200 bg-slate-50 px-4 sm:px-5 pt-3 gap-2 shrink-0">
           <button
             onClick={() => setActiveTab('contact')}
             className={`pb-2.5 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
@@ -148,7 +148,7 @@ export const HelpSupportModal: React.FC<HelpSupportModalProps> = ({ isOpen, onCl
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto space-y-5 text-xs">
+        <div className="p-5 sm:p-6 min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-5 text-xs">
           {activeTab === 'contact' && (
             <div className="space-y-4">
               <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200">

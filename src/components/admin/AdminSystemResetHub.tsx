@@ -1626,7 +1626,7 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
                 No revoked accounts currently listed.
               </div>
             ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+              <div className="space-y-2">
                 {overview.revokedAccounts.map((rev) => (
                   <div
                     key={rev.id}
@@ -1668,7 +1668,7 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
                 No reset or deletion audit events recorded yet.
               </div>
             ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+              <div className="space-y-2">
                 {overview.resetAuditLogs.map((log) => (
                   <div key={log.id} className="p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs space-y-1">
                     <div className="flex items-center justify-between gap-2">
@@ -1691,8 +1691,8 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
 
       {/* SELECTIVE DELETE CONFIRMATION MODAL */}
       {showSelectiveModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-rose-200 space-y-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-rose-200 space-y-4 my-auto mx-auto">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
                 <Trash2 className="w-5 h-5" />
@@ -1743,8 +1743,8 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
 
       {/* 2-STEP COMPLETE / CATEGORY RESET AUTHORIZATION MODAL */}
       {resetDialogMode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border-2 border-rose-400 space-y-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border-2 border-rose-400 space-y-4 my-auto mx-auto">
             <div className="flex items-start gap-3">
               <div className="w-11 h-11 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0">
                 <ShieldAlert className="w-6 h-6" />
@@ -1912,10 +1912,10 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
 
       {/* Super Admin Passcode Rotation Modal */}
       {showChangePasscodeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
           <form
             onSubmit={handleChangePasscode}
-            className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 text-xs"
+            className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 text-xs my-auto mx-auto"
           >
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#0B192C] text-amber-400 flex items-center justify-center shrink-0">

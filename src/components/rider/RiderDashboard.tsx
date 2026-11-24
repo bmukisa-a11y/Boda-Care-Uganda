@@ -670,7 +670,7 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
               </div>
             </div>
 
-            <div className="divide-y divide-slate-100 mt-2 max-h-80 overflow-y-auto">
+            <div className="divide-y divide-slate-100 mt-2">
               {incomes.slice(0, 4).map((inc) => (
                 <div key={inc.id} className="py-2.5 flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -801,8 +801,8 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
 
       {/* 5. Add Income Modal */}
       {showIncomeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 my-auto mx-auto">
             <h3 className="text-base font-bold text-slate-900 mb-1">{t.recordIncome}</h3>
             <p className="text-xs text-slate-500 mb-4">
               Add your passenger trips or parcel delivery collections.
@@ -884,8 +884,8 @@ export const RiderDashboard: React.FC<RiderDashboardProps> = ({
 
       {/* 6. Add Expense Modal */}
       {showExpenseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 my-auto mx-auto">
             <h3 className="text-base font-bold text-slate-900 mb-1">{t.recordExpense}</h3>
             <p className="text-xs text-slate-500 mb-4">
               Track fuel, repairs, and daily stage dues to see real net profit.

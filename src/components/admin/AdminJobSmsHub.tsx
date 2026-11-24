@@ -1867,7 +1867,7 @@ export const AdminJobSmsHub: React.FC<AdminJobSmsHubProps> = ({
                       className="p-1.5 bg-white border border-slate-300 rounded-lg text-xs w-52"
                     />
                   </div>
-                  <div className="max-h-48 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                     {riders
                       .filter(
                         (r) =>
@@ -2039,7 +2039,7 @@ export const AdminJobSmsHub: React.FC<AdminJobSmsHubProps> = ({
                         <span className="text-[10px] font-bold text-emerald-700 uppercase block mb-1">
                           Live WhatsApp Preview ({previewSampleRider?.fullName || 'Sample Rider'})
                         </span>
-                        <pre className="p-3 bg-white border border-emerald-200 rounded-xl text-[11px] font-sans whitespace-pre-wrap text-slate-800 max-h-56 overflow-y-auto leading-relaxed">
+                        <pre className="p-3 bg-white border border-emerald-200 rounded-xl text-[11px] font-sans whitespace-pre-wrap text-slate-800 leading-relaxed">
                           {renderedWhatsappPreview}
                         </pre>
                       </div>

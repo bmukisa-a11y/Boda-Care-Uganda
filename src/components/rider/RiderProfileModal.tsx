@@ -134,10 +134,10 @@ export const RiderProfileModal: React.FC<RiderProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-auto mx-auto max-h-[92dvh] flex flex-col">
         {/* Header */}
-        <div className="bg-[#0B192C] text-white p-6 relative">
+        <div className="bg-[#0B192C] text-white p-5 sm:p-6 relative shrink-0">
           <button
             onClick={onClose}
             className="absolute top-5 right-5 p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
@@ -173,7 +173,7 @@ export const RiderProfileModal: React.FC<RiderProfileModalProps> = ({
           </div>
 
           {/* Sub Navigation */}
-          <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-800">
+          <div className="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-slate-800">
             <button
               onClick={() => setActiveTab('profile')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -218,7 +218,7 @@ export const RiderProfileModal: React.FC<RiderProfileModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-5 sm:p-6 min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {saveSuccess && (
             <div className="mb-4 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold p-3 rounded-xl flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />

@@ -339,8 +339,8 @@ export const InvitationsManager: React.FC<InvitationsManagerProps> = ({ lang }) 
 
       {/* 4. Create Invitation Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 my-auto mx-auto">
             <h3 className="text-base font-bold text-slate-900 mb-1">Issue Official BodaCare Invitation</h3>
             <p className="text-xs text-slate-500 mb-4">
               Generate a tracked invitation code and instant WhatsApp share link.

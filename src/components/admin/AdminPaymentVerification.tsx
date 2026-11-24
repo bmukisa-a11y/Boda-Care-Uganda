@@ -498,8 +498,8 @@ export const AdminPaymentVerification: React.FC<AdminPaymentVerificationProps> =
 
       {/* 5. REJECTION MODAL WITH MANDATORY ADMINISTRATIVE NOTE */}
       {rejectingSubmission && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 my-auto mx-auto">
             <div className="bg-rose-700 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <XCircle className="w-5 h-5 text-rose-200" />
@@ -569,8 +569,8 @@ export const AdminPaymentVerification: React.FC<AdminPaymentVerificationProps> =
 
       {/* 6. PROOF / SCREENSHOT VIEWER MODAL */}
       {selectedScreenshot && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 my-auto mx-auto">
             <div className="bg-[#0B192C] text-white p-4 flex items-center justify-between">
               <div>
                 <h3 className="text-base font-bold">Payment Receipt Proof</h3>
@@ -644,8 +644,8 @@ export const AdminPaymentVerification: React.FC<AdminPaymentVerificationProps> =
 
       {/* 7. MEMBER PAYMENT HISTORY MODAL */}
       {viewingMemberHistory && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 max-h-[85vh] flex flex-col">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 max-h-[90dvh] flex flex-col my-auto mx-auto">
             <div className="bg-[#0B192C] text-white p-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <History className="w-5 h-5 text-amber-400" />
@@ -662,7 +662,7 @@ export const AdminPaymentVerification: React.FC<AdminPaymentVerificationProps> =
               </button>
             </div>
 
-            <div className="p-5 overflow-y-auto space-y-3">
+            <div className="p-5 min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-3">
               {memberHistorySubmissions.length === 0 ? (
                 <div className="text-center py-8 text-slate-400 text-xs">
                   No payment submissions found for this member ID.

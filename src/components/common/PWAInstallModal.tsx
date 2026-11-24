@@ -98,7 +98,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({
       aria-modal="true"
       aria-labelledby="pwa-install-title"
     >
-      <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92dvh]">
         {/* Header with Brand Emblem */}
         <div className="bg-[#0B192C] text-white p-5 flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({
           </button>
         </div>
 
-        <div className="p-5 overflow-y-auto space-y-4">
+        <div className="p-5 min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-4">
           {/* App Capabilities */}
           <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
             <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">

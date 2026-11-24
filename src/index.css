@@ -20,10 +20,18 @@
   }
 }
 
-html,
+html {
+  height: auto;
+  min-height: 100%;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  overflow-x: hidden;
-  overscroll-behavior-y: contain;
+  height: auto;
+  min-height: 100%;
+  overflow-x: clip;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom scrollbar for clean dashboard feeds */
@@ -59,16 +67,14 @@ body {
 @keyframes ebodaPageEnter {
   from {
     opacity: 0;
-    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .page-enter {
-  animation: ebodaPageEnter 160ms ease-out both;
+  animation: ebodaPageEnter 140ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {

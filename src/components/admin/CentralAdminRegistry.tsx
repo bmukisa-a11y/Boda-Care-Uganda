@@ -892,9 +892,9 @@ export const CentralAdminRegistry: React.FC<CentralAdminRegistryProps> = ({
             </select>
           </div>
 
-          <div className="overflow-x-auto max-h-[520px]">
+          <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
                 <tr>
                   <th className="py-2.5 px-3">Category</th>
                   <th className="py-2.5 px-3">Unique ID</th>
@@ -1711,7 +1711,7 @@ export const CentralAdminRegistry: React.FC<CentralAdminRegistryProps> = ({
           {/* Delivery Audit Table */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
             <h4 className="text-sm font-bold text-slate-900">Multi-Channel Notification Delivery Log (SQLite)</h4>
-            <div className="overflow-x-auto max-h-72">
+            <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
                   <tr>
@@ -1822,7 +1822,7 @@ export const CentralAdminRegistry: React.FC<CentralAdminRegistryProps> = ({
               <Clock className="w-4 h-4 text-slate-600" />
               <span>Immutable Admin Security &amp; Database Audit Trail</span>
             </h4>
-            <div className="overflow-x-auto max-h-96">
+            <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
                   <tr>
@@ -1922,8 +1922,8 @@ export const CentralAdminRegistry: React.FC<CentralAdminRegistryProps> = ({
         />
       )}
       {inspectProfile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-3">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-3 my-auto mx-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <h3 className="text-base font-bold text-slate-900">{inspectProfile.title}</h3>
               <button onClick={() => setInspectProfile(null)} className="text-slate-400 hover:text-slate-700 font-bold cursor-pointer">✕</button>

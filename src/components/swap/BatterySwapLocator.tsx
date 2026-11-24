@@ -621,8 +621,8 @@ export const BatterySwapLocator: React.FC<BatterySwapLocatorProps> = ({
 
       {/* MODAL 1: STEP-BY-STEP DIRECTIONS */}
       {showDirectionsModal && selectedStation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-xs">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 text-xs my-auto mx-auto">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900">
@@ -696,8 +696,8 @@ export const BatterySwapLocator: React.FC<BatterySwapLocatorProps> = ({
 
       {/* MODAL 2: REPORT STATION PROBLEM */}
       {showProblemModal && selectedStation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-xs">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 text-xs my-auto mx-auto">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900">
@@ -773,8 +773,8 @@ export const BatterySwapLocator: React.FC<BatterySwapLocatorProps> = ({
 
       {/* MODAL 3: INVENTORY UPDATE (STATION OPERATOR) */}
       {showInventoryUpdateModal && selectedStation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-xs">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 text-xs my-auto mx-auto">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900">
@@ -852,8 +852,8 @@ export const BatterySwapLocator: React.FC<BatterySwapLocatorProps> = ({
 
       {/* MODAL 4: REGISTER NEW SWAP STATION */}
       {showRegisterStationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4 text-xs">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-8 shadow-2xl border border-slate-200 space-y-4 text-xs my-auto mx-auto">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900">

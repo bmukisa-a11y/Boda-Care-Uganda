@@ -112,13 +112,13 @@ export const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* Main Top Bar */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-5">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 min-h-16 py-1.5 flex items-center justify-between gap-1.5 sm:gap-4">
         {/* Zone 1: Brand Wordmark */}
         <button
           onClick={() => onTabChange('landing')}
-          className="flex items-center gap-2.5 whitespace-nowrap shrink-0 group text-left cursor-pointer min-h-[44px]"
+          className="flex items-center gap-2 whitespace-nowrap shrink-0 group text-left cursor-pointer min-h-[44px] min-w-0"
         >
-          <div className="w-9 h-9 rounded-xl bg-[#0B192C] border border-amber-400/40 flex items-center justify-center overflow-hidden shadow-sm group-hover:border-amber-300 transition-colors shrink-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#0B192C] border border-amber-400/40 flex items-center justify-center overflow-hidden shadow-sm group-hover:border-amber-300 transition-colors shrink-0">
             <img
               src={founder.logoUrl || '/eboda-brand-icon.png'}
               alt="E Boda Connect Luweero"
@@ -126,8 +126,8 @@ export const Header: React.FC<HeaderProps> = ({
             />
           </div>
           <div className="min-w-0">
-            <span className="text-sm sm:text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
-              <span>E Boda Connect</span>
+            <span className="text-xs sm:text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
+              <span className="truncate max-w-[96px] xs:max-w-none sm:max-w-none">E Boda Connect</span>
               <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30 font-mono hidden md:inline">
                 Luweero
               </span>
@@ -156,13 +156,13 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
         {/* Zone 3: Actions & Controls */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Install App Button (shown when not already installed in standalone mode) */}
           {!isPWAInstalled && onOpenInstall && (
             <button
               type="button"
               onClick={onOpenInstall}
-              className="min-h-[40px] px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+              className="min-h-[40px] px-2 sm:px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
               title="Install E Boda Connect Luweero Android App"
             >
               <Download className="w-3.5 h-3.5 shrink-0" />
@@ -173,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Notifications Bell */}
           <button
             onClick={onOpenNotifications}
-            className="relative min-h-[40px] min-w-[40px] p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors cursor-pointer flex items-center justify-center"
+            className="relative min-h-[40px] min-w-[38px] sm:min-w-[40px] p-1.5 sm:p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors cursor-pointer flex items-center justify-center"
             title="Notifications & Push Alerts"
           >
             <Bell className="w-4 h-4 text-slate-200" />
@@ -208,7 +208,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Bilingual Language Switcher */}
           <button
             onClick={onLangToggle}
-            className="min-h-[40px] flex items-center gap-1 px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
+            className="min-h-[40px] flex items-center gap-1 px-1.5 sm:px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
             title="Switch Language / Kyusa Olulimi"
           >
             <Globe className="w-3.5 h-3.5 text-amber-400" />
@@ -221,7 +221,7 @@ export const Header: React.FC<HeaderProps> = ({
               value={currentRole}
               onChange={(e) => onRoleChange(e.target.value as UserRole)}
               aria-label="Switch user role"
-              className="min-h-[40px] appearance-none bg-slate-800 text-slate-100 text-xs font-medium pl-2 pr-6 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400 cursor-pointer max-w-[105px] sm:max-w-[165px] truncate"
+              className="min-h-[40px] appearance-none bg-slate-800 text-slate-100 text-[11px] sm:text-xs font-medium pl-2 pr-5 sm:pr-6 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400 cursor-pointer max-w-[88px] sm:max-w-[165px] truncate"
             >
               <option value="rider">Rider: Kato Moses (E-Boda)</option>
               <option value="passenger">Passenger: Babirye Prossy</option>
@@ -231,7 +231,7 @@ export const Header: React.FC<HeaderProps> = ({
               <option value="employer">Employer: Nsubuga (Coffee)</option>
               <option value="super_admin">Founder: Brian Mukisa (Admin)</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-1 sm:right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Emergency SOS Button */}

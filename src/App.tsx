@@ -336,7 +336,7 @@ export default function App() {
   const effectiveOffline = isOffline || !isBrowserOnline;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-950 pb-20 lg:pb-0 overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-950 pb-24 lg:pb-0 overflow-x-clip">
       {/* Universal Top Bar */}
       <Header
         currentRole={currentRole}
@@ -367,8 +367,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Viewport Routing Across All 7 Modules */}
-      <main key={activeTab} className="flex-1 page-enter overflow-x-hidden">
+      {/* Main Viewport Routing Across All Modules */}
+      <main key={activeTab} className="flex-1 min-w-0 page-enter">
         {activeTab === 'landing' && (
           <LandingPage
             key={`landing-${directoryVersion}`}

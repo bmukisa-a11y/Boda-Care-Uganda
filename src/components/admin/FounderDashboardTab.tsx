@@ -414,7 +414,7 @@ export const FounderDashboardTab: React.FC<FounderDashboardTabProps> = ({
             <span className="text-[10px] text-slate-400">Live system events</span>
           </div>
 
-          <div className="space-y-2.5 max-h-80 overflow-y-auto divide-y divide-slate-100 text-xs">
+          <div className="space-y-2.5 divide-y divide-slate-100 text-xs">
             {auditLogs.slice(0, 6).map((log) => (
               <div key={log.id} className="pt-2.5 first:pt-0">
                 <div className="flex items-center justify-between text-[10px] text-slate-400">

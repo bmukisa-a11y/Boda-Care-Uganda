@@ -123,7 +123,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/60 backdrop-blur-xs">
-      <div className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col border-l border-slate-200">
+      <div className="bg-white w-full max-w-md h-[100dvh] shadow-2xl flex flex-col border-l border-slate-200">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-[#0B192C] text-white">
           <div className="flex items-center gap-2.5">
@@ -232,7 +232,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain divide-y divide-slate-100">
           {filteredNotifications.length === 0 ? (
             <div className="py-16 text-center text-xs text-slate-400">
               No notifications to display.

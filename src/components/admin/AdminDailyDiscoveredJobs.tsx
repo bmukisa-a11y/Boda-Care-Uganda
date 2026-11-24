@@ -1528,8 +1528,8 @@ export const AdminDailyDiscoveredJobs: React.FC<AdminDailyDiscoveredJobsProps> =
 
       {/* MODAL 1: APPROVE AND PUBLISH + INTELLIGENT JOB SEEKER BROADCAST */}
       {approvingJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-4 text-xs">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-4 text-xs my-auto mx-auto">
             <div className="flex items-start justify-between">
               <div>
                 <h4 className="text-base font-extrabold text-slate-900">Approve &amp; Publish Verified Job</h4>
@@ -1599,10 +1599,10 @@ export const AdminDailyDiscoveredJobs: React.FC<AdminDailyDiscoveredJobsProps> =
 
       {/* MODAL 2: EDIT JOB DETAILS */}
       {editingJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
           <form
             onSubmit={handleSaveEdit}
-            className="bg-white rounded-2xl max-w-2xl w-full p-5 shadow-2xl border border-slate-200 space-y-3 text-xs my-6"
+            className="bg-white rounded-2xl max-w-2xl w-full p-5 shadow-2xl border border-slate-200 space-y-3 text-xs my-auto mx-auto"
           >
             <div className="flex items-start justify-between">
               <h4 className="text-base font-extrabold text-slate-900">Edit Discovered Job Details</h4>
@@ -1712,10 +1712,10 @@ export const AdminDailyDiscoveredJobs: React.FC<AdminDailyDiscoveredJobsProps> =
 
       {/* MODAL 3: REQUEST MORE INFO */}
       {infoJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
           <form
             onSubmit={handleRequestMoreInfo}
-            className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-3 text-xs"
+            className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-3 text-xs my-auto mx-auto"
           >
             <h4 className="text-base font-extrabold text-slate-900">Request More Employer Information</h4>
             <p className="text-slate-600">{infoJob.title} ({infoJob.employerName})</p>
@@ -1756,8 +1756,8 @@ export const AdminDailyDiscoveredJobs: React.FC<AdminDailyDiscoveredJobsProps> =
 
       {/* MODAL 4: REJECT JOB */}
       {rejectJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
-          <form onSubmit={handleReject} className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
+          <form onSubmit={handleReject} className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 text-xs my-auto mx-auto">
             <h4 className="text-base font-extrabold text-slate-900">Reject Discovered Job</h4>
             <p className="text-slate-600">{rejectJob.title}</p>
             <textarea
@@ -1782,8 +1782,8 @@ export const AdminDailyDiscoveredJobs: React.FC<AdminDailyDiscoveredJobsProps> =
 
       {/* MODAL 5: MARK AS SUSPICIOUS */}
       {suspiciousJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
-          <form onSubmit={handleMarkSuspicious} className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
+          <form onSubmit={handleMarkSuspicious} className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 text-xs my-auto mx-auto">
             <h4 className="text-base font-extrabold text-rose-800">Mark Opportunity as Suspicious / Scam Risk</h4>
             <p className="text-slate-600">{suspiciousJob.title} ({suspiciousJob.employerName})</p>
             <textarea
@@ -1808,10 +1808,10 @@ export const AdminDailyDiscoveredJobs: React.FC<AdminDailyDiscoveredJobsProps> =
 
       {/* MODAL 6: INGEST LOCAL NEWSPAPER / PARTNER FEED */}
       {showIngestModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
           <form
             onSubmit={handleSubmitIngest}
-            className="bg-white rounded-2xl max-w-xl w-full p-5 shadow-2xl space-y-3 text-xs my-6"
+            className="bg-white rounded-2xl max-w-xl w-full p-5 shadow-2xl space-y-3 text-xs my-auto mx-auto"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -1874,8 +1874,8 @@ export const AdminDailyDiscoveredJobs: React.FC<AdminDailyDiscoveredJobsProps> =
 
       {/* MODAL 7: EMPLOYER VERIFICATION INSPECTOR ACTION */}
       {inspectEmployer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
-          <form onSubmit={handleEmployerAction} className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm">
+          <form onSubmit={handleEmployerAction} className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 text-xs my-auto mx-auto">
             <h4 className="text-base font-extrabold text-slate-900">Verify / Contact {inspectEmployer.employerName}</h4>
             <div className="grid grid-cols-2 gap-2">
               <div>

@@ -174,8 +174,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[92dvh] my-auto mx-auto">
         {/* Top Header */}
         <div className="bg-[#0B192C] text-white p-4 sm:p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
@@ -200,7 +200,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
 
         {/* Modal Scrollable Content */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-5">
+        <div className="p-4 sm:p-6 min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-5">
           {!submittedRecord ? (
             <>
               {/* SECTION 1: OFFICIAL ADMIN PAYMENT DETAILS (Prominently displayed) */}

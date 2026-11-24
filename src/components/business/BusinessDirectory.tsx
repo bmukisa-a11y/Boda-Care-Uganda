@@ -294,8 +294,8 @@ export const BusinessDirectory: React.FC<BusinessDirectoryProps> = ({ lang }) =>
 
       {/* 4. Service Booking Modal */}
       {activeRequestBiz && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 my-auto mx-auto">
             <h3 className="text-base font-bold text-slate-900 mb-1">
               Book Service with {activeRequestBiz.name}
             </h3>
@@ -356,8 +356,8 @@ export const BusinessDirectory: React.FC<BusinessDirectoryProps> = ({ lang }) =>
 
       {/* 5. Business Registration Application Modal */}
       {showRegisterModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 my-auto mx-auto">
             <h3 className="text-base font-bold text-slate-900 mb-1">Register Garage or Spare Shop</h3>
             <p className="text-xs text-slate-500 mb-4">
               Get listed on BodaCare Uganda and receive repair orders from local operators.

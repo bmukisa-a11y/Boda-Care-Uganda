@@ -11,9 +11,9 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, tab = '
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[85vh]">
-        <div className="bg-[#0B192C] text-white p-5 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain flex flex-col p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[92dvh] my-auto mx-auto">
+        <div className="bg-[#0B192C] text-white p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
               <Shield className="w-5 h-5" />
@@ -31,7 +31,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, tab = '
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto space-y-4 text-xs text-slate-700 leading-relaxed">
+        <div className="p-5 sm:p-6 min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-4 text-xs text-slate-700 leading-relaxed">
           <div>
             <h3 className="font-bold text-slate-900 text-sm mb-1">1. Operational Jurisdiction & Scope</h3>
             <p>
