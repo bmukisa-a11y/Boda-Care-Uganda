@@ -90,14 +90,15 @@ export default defineConfig(() => {
           skipWaiting: true,
           importScripts: ['/sw-push-handler.js'],
           navigateFallback: '/index.html',
-          navigateFallbackDenylist: [/^\/api\//, /^\/manifest\.webmanifest$/],
+          navigateFallbackDenylist: [/^\/api\//, /^\/\.netlify\/functions\//, /^\/manifest\.webmanifest$/],
           runtimeCaching: [
             {
               urlPattern: /^\/api\//,
               handler: 'NetworkOnly',
             },
             {
-              urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+              urlPattern: ({ url }) =>
+                url.pathname.startsWith('/api/') || url.pathname.startsWith('/.netlify/functions/'),
               handler: 'NetworkOnly',
             },
             {

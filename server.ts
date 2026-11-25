@@ -1705,16 +1705,33 @@ function escapeCsvCell(val: unknown): string {
   return `"${str}"`;
 }
 
-async function startServer() {
+export function createApiApp(options: { enableScheduler?: boolean } = {}): express.Express {
   const app = express();
   app.use(express.json({ limit: '4mb' }));
   app.use(express.urlencoded({ extended: true }));
 
+  // Normalize Netlify Function proxy path (`/.netlify/functions/api/...` -> `/api/...`)
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    if (req.url.startsWith('/.netlify/functions/api')) {
+      const stripped = req.url.slice('/.netlify/functions/api'.length);
+      if (!stripped || stripped === '/') {
+        req.url = '/api';
+      } else if (stripped.startsWith('/api/') || stripped === '/api') {
+        req.url = stripped;
+      } else {
+        req.url = `/api${stripped.startsWith('/') ? stripped : `/${stripped}`}`;
+      }
+    }
+    next();
+  });
+
   // Ensure SQLite DB schema & baseline seed initialized immediately
   getDb();
 
-  // Start Automated Daily Job Discovery Engine background scheduler (Kampala EAT time)
-  startDiscoveryScheduler(notifyAdminOnJobDiscovery);
+  // Start Automated Daily Job Discovery Engine background scheduler only in persistent server mode
+  if (options.enableScheduler !== false) {
+    startDiscoveryScheduler(notifyAdminOnJobDiscovery);
+  }
 
   // =========================================================================
   // 1. MESSAGING GATEWAY & USSD STATUS ENDPOINTS
@@ -5967,6 +5984,37 @@ async function startServer() {
     });
   });
 
+  // Guarantee unmatched /api/* routes always return JSON (never fall through to SPA HTML)
+  app.use('/api', (req: Request, res: Response) => {
+    res.status(404).json({
+      error: `API endpoint not found: ${req.method} ${req.originalUrl}`,
+    });
+  });
+
+  // Guarantee API errors return structured JSON
+  app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+    if (res.headersSent) {
+      next(err);
+      return;
+    }
+    const status =
+      typeof (err as { status?: unknown })?.status === 'number'
+        ? ((err as { status: number }).status)
+        : 500;
+    const message = err instanceof Error ? err.message : 'Internal server error.';
+    if (req.path.startsWith('/api') || req.path.startsWith('/.netlify/functions')) {
+      res.status(status).json({ error: message });
+      return;
+    }
+    next(err);
+  });
+
+  return app;
+}
+
+export async function startServer() {
+  const app = createApiApp({ enableScheduler: true });
+
   // Ensure web app manifest always uses standard MIME type
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.path.endsWith('.webmanifest')) {
@@ -5979,7 +6027,8 @@ async function startServer() {
 
   // Vite or Static Asset Serving
   if (process.env.NODE_ENV !== 'production') {
-    const { createServer: createViteServer } = await import('vite');
+    const vitePkg = 'vite';
+    const { createServer: createViteServer } = await import(/* @vite-ignore */ vitePkg);
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
@@ -6006,4 +6055,15 @@ async function startServer() {
   });
 }
 
-startServer();
+const isDirectEntry =
+  typeof process !== 'undefined' &&
+  Array.isArray(process.argv) &&
+  Boolean(process.argv[1]) &&
+  path.resolve(process.argv[1]) === path.resolve(__filename) &&
+  !process.env.NETLIFY &&
+  !process.env.AWS_LAMBDA_FUNCTION_NAME &&
+  !process.env.LAMBDA_TASK_ROOT;
+
+if (isDirectEntry) {
+  startServer();
+}

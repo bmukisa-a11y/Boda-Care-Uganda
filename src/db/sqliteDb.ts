@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
@@ -45,9 +46,43 @@ import type {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
-const DATA_DIR = path.join(ROOT_DIR, '.data');
-const SQLITE_PATH = path.join(DATA_DIR, 'bodacare.sqlite');
-const LEGACY_JSON_PATH = path.join(DATA_DIR, 'bodacare-db.json');
+
+function resolveDataPaths(): { dataDir: string; sqlitePath: string; legacyJsonPath: string } {
+  const customDbPath = (process.env.BODACARE_DB_PATH || '').trim();
+  if (customDbPath) {
+    const resolved = path.resolve(customDbPath);
+    const dir = path.dirname(resolved);
+    return {
+      dataDir: dir,
+      sqlitePath: resolved,
+      legacyJsonPath: path.join(dir, 'bodacare-db.json'),
+    };
+  }
+
+  const isServerless = Boolean(
+    process.env.NETLIFY ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.LAMBDA_TASK_ROOT
+  );
+
+  if (isServerless) {
+    const tmpDir = path.join(os.tmpdir(), 'bodacare-data');
+    return {
+      dataDir: tmpDir,
+      sqlitePath: path.join(tmpDir, 'bodacare.sqlite'),
+      legacyJsonPath: path.join(tmpDir, 'bodacare-db.json'),
+    };
+  }
+
+  const localDir = path.join(ROOT_DIR, '.data');
+  return {
+    dataDir: localDir,
+    sqlitePath: path.join(localDir, 'bodacare.sqlite'),
+    legacyJsonPath: path.join(localDir, 'bodacare-db.json'),
+  };
+}
+
+let { dataDir: DATA_DIR, sqlitePath: SQLITE_PATH, legacyJsonPath: LEGACY_JSON_PATH } = resolveDataPaths();
 
 let dbInstance: DatabaseSync | null = null;
 
@@ -66,12 +101,27 @@ export function generateRecordCode(prefix: string, seqHint?: number): string {
 export function getDb(): DatabaseSync {
   if (dbInstance) return dbInstance;
 
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch {
+    // Fall back to OS temp directory if application directory is read-only (e.g. serverless)
+    const fallbackDir = path.join(os.tmpdir(), 'bodacare-data');
+    DATA_DIR = fallbackDir;
+    SQLITE_PATH = path.join(fallbackDir, 'bodacare.sqlite');
+    LEGACY_JSON_PATH = path.join(fallbackDir, 'bodacare-db.json');
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
   }
 
   const db = new DatabaseSync(SQLITE_PATH);
-  db.exec('PRAGMA journal_mode = WAL;');
+  try {
+    db.exec('PRAGMA journal_mode = WAL;');
+  } catch {
+    db.exec('PRAGMA journal_mode = DELETE;');
+  }
   db.exec('PRAGMA foreign_keys = ON;');
 
   db.exec(`

@@ -236,21 +236,70 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
     return headers;
   }, []);
 
+  const parseApiJson = useCallback(async <T,>(resp: Response, endpointLabel: string): Promise<T> => {
+    const rawText = await resp.text();
+    const contentType = (resp.headers.get('content-type') || '').toLowerCase();
+    const trimmed = rawText.trim();
+    const looksLikeHtml =
+      contentType.includes('text/html') ||
+      trimmed.startsWith('<!DOCTYPE') ||
+      trimmed.startsWith('<!doctype') ||
+      trimmed.startsWith('<html');
+
+    if (looksLikeHtml) {
+      throw new Error(
+        `API endpoint (${endpointLabel}) returned HTML instead of JSON (HTTP ${resp.status}). Verify Netlify Functions and /api/* redirect routing are active.`
+      );
+    }
+
+    if (!trimmed) {
+      if (!resp.ok) {
+        throw new Error(`Request to ${endpointLabel} failed (HTTP ${resp.status}).`);
+      }
+      return {} as T;
+    }
+
+    try {
+      return JSON.parse(rawText) as T;
+    } catch {
+      throw new Error(
+        `Invalid JSON response from ${endpointLabel} (HTTP ${resp.status}).`
+      );
+    }
+  }, []);
+
   const loadCredentialStatus = useCallback(async () => {
     setCredStatusLoading(true);
     try {
-      const resp = await fetch('/api/auth/super-admin/status', { cache: 'no-store' });
-      if (resp.ok) {
-        const json = await resp.json();
-        setCredStatus(json);
-        if (json.email) setAuthIdentifier(json.email);
+      const resp = await fetch('/api/auth/super-admin/status', {
+        headers: { Accept: 'application/json' },
+        cache: 'no-store',
+      });
+      const json = await parseApiJson<{
+        configured: boolean;
+        requiresSetup: boolean;
+        source: string;
+        fullName: string;
+        email: string;
+        phone: string;
+        error?: string;
+      }>(resp, '/api/auth/super-admin/status');
+      if (!resp.ok) {
+        throw new Error(json.error || `Credential status check failed (HTTP ${resp.status}).`);
       }
-    } catch {
-      // ignore initial status fetch errors
+      setCredStatus(json);
+      if (json.email) setAuthIdentifier(json.email);
+      setAuthError(null);
+    } catch (err) {
+      setAuthError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to reach Super Admin authentication API.'
+      );
     } finally {
       setCredStatusLoading(false);
     }
-  }, []);
+  }, [parseApiJson]);
 
   useEffect(() => {
     if (currentRole === 'super_admin') {
@@ -266,11 +315,15 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
     try {
       const resp = await fetch('/api/admin/system-reset/overview', {
         headers: {
+          Accept: 'application/json',
           Authorization: `Bearer ${token}`,
         },
         cache: 'no-store',
       });
-      const data = await resp.json();
+      const data = await parseApiJson<SystemResetOverviewPayload & { error?: string }>(
+        resp,
+        '/api/admin/system-reset/overview'
+      );
       if (resp.status === 401 || resp.status === 403) {
         clearSuperAdminSession();
         setError(data.error || 'Super Admin session expired. Please unlock again.');
@@ -279,13 +332,13 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
       if (!resp.ok) {
         throw new Error(data.error || 'Failed to load App Reset & Member Management overview.');
       }
-      setOverview(data as SystemResetOverviewPayload);
+      setOverview(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to reach System Reset backend.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [parseApiJson]);
 
   useEffect(() => {
     if (currentRole === 'super_admin' && sessionInfo.unlocked) {
@@ -337,7 +390,10 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
       const endpoint = isClaim ? '/api/auth/super-admin/claim' : '/api/auth/super-admin/unlock';
       const resp = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
         body: JSON.stringify(
           isClaim
             ? {
@@ -351,8 +407,23 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
               }
         ),
       });
-      const json = await resp.json();
+      const json = await parseApiJson<{
+        token: string;
+        expiresAt: string;
+        admin: {
+          id: string;
+          fullName: string;
+          email: string;
+          phone: string;
+          role: 'super_admin';
+        };
+        error?: string;
+        requiresSetup?: boolean;
+      }>(resp, endpoint);
       if (!resp.ok) {
+        if (json.requiresSetup) {
+          await loadCredentialStatus();
+        }
         throw new Error(json.error || 'Authentication failed.');
       }
       setSuperAdminSession(json.token, json.expiresAt, json.admin);
@@ -399,7 +470,17 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
           confirmNewPasscode: confirmNewPassInput,
         }),
       });
-      const json = await resp.json().catch(() => ({}));
+      const json = await parseApiJson<{
+        status?: {
+          configured: boolean;
+          requiresSetup: boolean;
+          source: string;
+          fullName: string;
+          email: string;
+          phone: string;
+        };
+        error?: string;
+      }>(resp, '/api/auth/super-admin/change-passcode');
       if (!resp.ok) {
         throw new Error(json.error || 'Failed to update security passcode.');
       }
@@ -604,10 +685,15 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
         throw new Error('Super Admin session expired. Unlock again to export.');
       }
       if (!resp.ok) {
-        const errData = await resp.json().catch(() => ({}));
+        const errData = await parseApiJson<{ error?: string }>(resp, '/api/admin/system-reset/backup').catch(
+          () => ({} as { error?: string })
+        );
         throw new Error(errData.error || 'Backup export failed.');
       }
       const jsonText = await resp.text();
+      if (jsonText.trim().startsWith('<')) {
+        throw new Error('Backup endpoint returned HTML instead of JSON. Check Netlify /api/* routing.');
+      }
       const blob = new Blob([jsonText], { type: 'application/json;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -640,7 +726,10 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
           reason: selectiveReason.trim() || 'Selective Super Admin cleanup',
         }),
       });
-      const data = (await resp.json()) as SystemResetResult & { error?: string };
+      const data = await parseApiJson<SystemResetResult & { error?: string }>(
+        resp,
+        '/api/admin/system-reset/selective'
+      );
       if (resp.status === 401 || resp.status === 403) {
         clearSuperAdminSession();
         throw new Error(data.error || 'Super Admin authorization required.');
@@ -692,7 +781,7 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
         headers: getAuthHeaders(),
         body: JSON.stringify(payload),
       });
-      const data = (await resp.json()) as SystemResetResult & { error?: string };
+      const data = await parseApiJson<SystemResetResult & { error?: string }>(resp, endpoint);
       if (resp.status === 401 || resp.status === 403) {
         clearSuperAdminSession();
         throw new Error(data.error || 'Super Admin authorization required.');
@@ -732,7 +821,10 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
         headers: getAuthHeaders(),
         body: JSON.stringify({ idOrPhone }),
       });
-      const data = await resp.json();
+      const data = await parseApiJson<{ overview: SystemResetOverviewPayload; error?: string }>(
+        resp,
+        '/api/admin/system-reset/unrevoke'
+      );
       if (!resp.ok) {
         throw new Error(data.error || 'Failed to restore access.');
       }
@@ -753,7 +845,11 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
       headers: getAuthHeaders(),
       body: JSON.stringify({ rider, confirmationChannels: channels }),
     });
-    const json = await resp.json().catch(() => ({}));
+    const json = await parseApiJson<{
+      rider: RiderProfile;
+      deliveries?: Array<{ status: string }>;
+      error?: string;
+    }>(resp, '/api/admin/riders');
     if (!resp.ok) {
       throw new Error(json.error || `Failed to register rider (HTTP ${resp.status})`);
     }
@@ -761,7 +857,7 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
     await fetchOverview();
     onDataChanged?.();
     const blockedCount = Array.isArray(json.deliveries)
-      ? json.deliveries.filter((d: { status: string }) => d.status === 'blocked_unconfigured').length
+      ? json.deliveries.filter((d) => d.status === 'blocked_unconfigured').length
       : 0;
     showNotice(
       blockedCount > 0 ? 'warning' : 'success',
@@ -780,7 +876,10 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
       headers: getAuthHeaders(),
       body: JSON.stringify({ passenger, confirmationChannels: channels }),
     });
-    const json = await resp.json().catch(() => ({}));
+    const json = await parseApiJson<{ passenger: PassengerProfile; error?: string }>(
+      resp,
+      '/api/admin/passengers'
+    );
     if (!resp.ok) {
       throw new Error(json.error || `Failed to register passenger (HTTP ${resp.status})`);
     }
@@ -799,7 +898,7 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
       headers: getAuthHeaders(),
       body: JSON.stringify(stage),
     });
-    const json = await resp.json().catch(() => ({}));
+    const json = await parseApiJson<{ stage: Stage; error?: string }>(resp, '/api/admin/stages');
     if (!resp.ok) {
       throw new Error(json.error || `Failed to register boda stage (HTTP ${resp.status})`);
     }
@@ -815,7 +914,10 @@ export const AdminSystemResetHub: React.FC<AdminSystemResetHubProps> = ({
       headers: getAuthHeaders(),
       body: JSON.stringify(station),
     });
-    const json = await resp.json().catch(() => ({}));
+    const json = await parseApiJson<{ station: BatterySwapStation; error?: string }>(
+      resp,
+      '/api/admin/stations'
+    );
     if (!resp.ok) {
       throw new Error(json.error || `Failed to register swap station (HTTP ${resp.status})`);
     }

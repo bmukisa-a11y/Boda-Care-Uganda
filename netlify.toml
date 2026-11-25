@@ -1,9 +1,25 @@
-# Netlify configuration for BodaCare Uganda Vite React SPA
+# Netlify configuration for BodaCare Uganda (Vite React SPA + Serverless Express API)
 
 [build]
   publish = "dist"
   command = "npm run build"
 
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["express", "web-push", "serverless-http", "dotenv", "@google/genai"]
+
+# Route all API endpoints to the Express Netlify Function BEFORE the SPA catch-all
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# SPA fallback for client-side routes (never matches /api/*)
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -15,6 +31,16 @@
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
 
 [[headers]]
   for = "/assets/*"
