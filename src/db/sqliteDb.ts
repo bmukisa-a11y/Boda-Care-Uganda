@@ -43,9 +43,12 @@ import type {
   WelcomeSettingsConfig,
 } from '../types/index.ts';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, '..', '..');
+const DB_MODULE_FILENAME =
+  typeof import.meta !== 'undefined' && typeof import.meta.url === 'string' && import.meta.url
+    ? fileURLToPath(import.meta.url)
+    : path.resolve(process.cwd(), 'src', 'db', 'sqliteDb.ts');
+const DB_MODULE_DIR = path.dirname(DB_MODULE_FILENAME);
+const ROOT_DIR = path.resolve(DB_MODULE_DIR, '..', '..');
 
 function resolveDataPaths(): { dataDir: string; sqlitePath: string; legacyJsonPath: string } {
   const customDbPath = (process.env.BODACARE_DB_PATH || '').trim();

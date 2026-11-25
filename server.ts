@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import crypto from 'crypto';
 import http from 'http';
 import express from 'express';
@@ -146,9 +145,11 @@ import type {
   WelcomeSettingsConfig,
 } from './src/types/index.ts';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PORT = Number(process.env.PORT || 3000);
+const SERVER_FILENAME =
+  typeof import.meta !== 'undefined' && typeof import.meta.url === 'string' && import.meta.url
+    ? fileURLToPath(import.meta.url)
+    : path.resolve(process.cwd(), 'server.ts');
+const SERVER_DIRNAME = path.dirname(SERVER_FILENAME);
 
 // Extend Express Request with authenticated admin operator context
 interface AdminRequest extends Request {
@@ -1511,7 +1512,15 @@ function sanitizeImageUrl(raw?: unknown): string {
  * Validates admin account status and granular permission flags in SQLite `admin_accounts`.
  */
 const SUPER_ADMIN_TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
-const SESSION_SECRET = (process.env.SESSION_SECRET || '').trim() || crypto.randomBytes(32).toString('hex');
+let fallbackSessionSecret: string | null = null;
+function getSessionSecret(): string {
+  const configured = (process.env.SESSION_SECRET || '').trim();
+  if (configured) return configured;
+  if (!fallbackSessionSecret) {
+    fallbackSessionSecret = crypto.randomBytes(32).toString('hex');
+  }
+  return fallbackSessionSecret;
+}
 const revokedSuperAdminTokens = new Set<string>();
 
 interface SuperAdminTokenPayload {
@@ -1537,7 +1546,7 @@ function signSuperAdminToken(admin: AdminAccount): { token: string; expiresAt: s
     jti: crypto.randomBytes(12).toString('hex'),
   };
   const payloadB64 = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
-  const sig = crypto.createHmac('sha256', SESSION_SECRET).update(payloadB64).digest('base64url');
+  const sig = crypto.createHmac('sha256', getSessionSecret()).update(payloadB64).digest('base64url');
   return {
     token: `${payloadB64}.${sig}`,
     expiresAt: new Date(exp).toISOString(),
@@ -1566,7 +1575,7 @@ function verifySuperAdminBearerToken(authHeader?: string): {
   if (!payloadB64 || !sigB64) {
     return { valid: false, reason: 'Malformed authentication token.' };
   }
-  const expectedSig = crypto.createHmac('sha256', SESSION_SECRET).update(payloadB64).digest();
+  const expectedSig = crypto.createHmac('sha256', getSessionSecret()).update(payloadB64).digest();
   let providedSig: Buffer;
   try {
     providedSig = Buffer.from(sigB64, 'base64url');
@@ -6013,6 +6022,14 @@ export function createApiApp(options: { enableScheduler?: boolean } = {}): expre
 }
 
 export async function startServer() {
+  try {
+    const dotenvPkg = 'dotenv/config';
+    await import(/* @vite-ignore */ dotenvPkg);
+  } catch {
+    // ignore if dotenv is unavailable in production
+  }
+
+  const port = Number(process.env.PORT || 3000);
   const app = createApiApp({ enableScheduler: true });
 
   // Ensure web app manifest always uses standard MIME type
@@ -6043,15 +6060,15 @@ export async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distDir = path.join(__dirname, 'dist');
+    const distDir = path.join(SERVER_DIRNAME, 'dist');
     app.use(express.static(distDir));
     app.get('*', (_req: Request, res: Response) => {
       res.sendFile(path.join(distDir, 'index.html'));
     });
   }
 
-  httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`BodaCare Uganda SQLite Command Server running at http://0.0.0.0:${PORT}`);
+  httpServer.listen(port, '0.0.0.0', () => {
+    console.log(`BodaCare Uganda SQLite Command Server running at http://0.0.0.0:${port}`);
   });
 }
 
@@ -6059,7 +6076,7 @@ const isDirectEntry =
   typeof process !== 'undefined' &&
   Array.isArray(process.argv) &&
   Boolean(process.argv[1]) &&
-  path.resolve(process.argv[1]) === path.resolve(__filename) &&
+  path.resolve(process.argv[1]) === path.resolve(SERVER_FILENAME) &&
   !process.env.NETLIFY &&
   !process.env.AWS_LAMBDA_FUNCTION_NAME &&
   !process.env.LAMBDA_TASK_ROOT;
